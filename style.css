@@ -960,70 +960,95 @@ body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* Lock skrin supaya muat 1 page tanpa scroll */
+//* Lock skrin supaya muat 1 page penuh tanpa scroll */
+/* 1. Global Reset & Lock Viewport */
 html, body {
-  height: 100%;
+  height: 100dvh; /* Menggunakan dvh supaya tepat mengikut skrin telefon */
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Halang drpd scroll */
-}
-
-.app-container {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 10px 12px;
+  overflow: hidden; /* Menghalang vertical scrollbar */
   box-sizing: border-box;
 }
 
-/* KOTAK KACA (GLASS CARD) */
-/* Glass Card Hanya Balut Table */
+/* 2. Main App Container Flexbox */
+.app-container {
+  height: 100dvh;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between;
+  padding: 8px 12px 60px 12px; /* Bottom padding elak bertindih dgn bottom nav */
+  box-sizing: border-box;
+}
+
+/* 3. Header & Product Grid (Auto Shrink) */
+header, .header-title {
+  flex-shrink: 0;
+  margin-bottom: 4px !important;
+}
+
+.product-compare-grid, .product-cards-container {
+  flex-shrink: 0;
+  margin-bottom: 4px !important;
+}
+
+.product-card {
+  padding: 6px !important;
+}
+
+.product-card img {
+  max-height: 11dvh !important; /* Gambar ikut % ketinggian skrin */
+  object-fit: contain;
+}
+
+/* 4. Profile Banner (LUAR Kotak Glass) */
+#matchAnalysisBox, .profile-banner {
+  flex-shrink: 0;
+  width: 100% !important;
+  box-sizing: border-box;
+  margin: 2px 0 !important;
+  padding: 5px !important;
+  font-size: clamp(0.6rem, 2vh, 0.75rem) !important; /* Saiz teks mengikut skrin */
+}
+
+/* 5. Glass Card (Flex-1 supaya auto-fit ruang tengah) */
 .glass-card {
-  width: 100%;
+  flex: 1; /* Mengisi baki ruang kosong di tengah secara fleksibel */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100% !important;
   box-sizing: border-box;
   background: rgba(20, 15, 10, 0.55);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 14px;
-  padding: 8px 10px;
-  margin-top: 10px;
+  border-radius: 12px;
+  padding: 4px 8px !important;
+  margin: 4px 0 !important;
+  overflow: hidden;
 }
 
-/* Profile Banner di luar */
-.profile-banner {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.5);
-  color: #d4af37;
-  border-radius: 8px;
-  padding: 8px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  text-align: center;
-  margin: 10px 0 5px 0;
-  letter-spacing: 0.5px;
-}
-
-/* Comparison Table (Grid Version) */
+/* 6. Comparison Table Auto-Spacing */
 .comparison-table {
-  margin-top: 0;
-  border-top: none;
+  width: 100% !important;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly; /* Sebarkan baris table secara seimbang */
 }
 
 .table-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr; 
-  padding: 3px 0; /* Dikurangkan ke 3px supaya sangat jimat ruang */
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 2px 0 !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 0.68rem; /* Saiz teks sedikit ringkas */
+  font-size: clamp(0.58rem, 1.8vh, 0.72rem) !important; /* Teks bertukar saiz ikut skrin */
   align-items: center;
-  word-break: break-word; 
-  line-height: 1.15;
+  line-height: 1.1;
 }
 
 .table-row:last-child {
-  border-bottom: none; /* Buang garisan baris paling bawah */
+  border-bottom: none !important;
 }
 
 .row-title {
@@ -1038,34 +1063,27 @@ html, body {
   padding: 0 2px;
 }
 
-.empty-text {
-  color: rgba(255, 255, 255, 0.35);
-  font-style: italic;
-  font-size: 0.65rem;
-}
-
-/* Action Button Container - Rapatkan supaya muat 1 skrin */
+/* 7. Action Button Container (Fixed di Bawah Table) */
 .action-btn-container {
-  margin-top: 8px;      /* Dikurangkan daripada 25px ke 8px */
-  padding-bottom: 0px;  /* Dibuang 80px yang menyebabkan scroll berlebihan */
+  flex-shrink: 0;
+  width: 100% !important;
+  margin-top: 4px !important;
 }
 
 .search-product-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  padding: 8px;        /* Dikurangkan daripada 12px ke 8px */
+  padding: clamp(6px, 1.2vh, 10px) !important;
   background: #e0e0e0;
   color: #000000;
   border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.75rem;   /* Saiz butang lebih compact */
-  letter-spacing: 0.5px;
+  font-size: clamp(0.68rem, 2vh, 0.78rem) !important;
   border: none;
-  transition: background 0.2s;
 }
 
 .search-product-btn:hover {
