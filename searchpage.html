@@ -357,6 +357,7 @@
   }
 
   // 4. SIMPAN TERUS KE FIRESTORE (BUKAN LOCALSTORAGE AGAIN)
+  // SIMPAN TERUS KE FIRESTORE (DENGAN SEMAKAN PRODUK SAMA & KATEGORI)
   window.selectForCompare = async function(productData) {
     if (!currentUserId) {
       showCustomAlert("Please login first.");
@@ -376,26 +377,36 @@
       const otherSlotIndex = slotIndex === 0 ? 1 : 0;
       const existingProduct = compareList[otherSlotIndex];
 
-      // Semakan Kategori
-      if (existingProduct && existingProduct.category && productData.category) {
-        const existingCat = normalizeText(existingProduct.category);
-        const newCat = normalizeText(productData.category);
+      if (existingProduct) {
+        // 1. SEMAKAN PRODUK SAMA: Sekiranya produk yang dipilih sudah ada di slot sebelah
+        if (existingProduct.name && productData.name) {
+          if (existingProduct.name.trim().toLowerCase() === productData.name.trim().toLowerCase()) {
+            showCustomAlert("You cannot compare the same product!");
+            return; // Hentikan proses simpan
+          }
+        }
 
-        if (existingCat !== newCat) {
-          showCustomAlert(`You can only compare products from the same category (${existingProduct.category}).`);
-          return; // Hentikan proses
+        // 2. SEMAKAN KATEGORI: Produk mesti dari kategori yang sama
+        if (existingProduct.category && productData.category) {
+          const existingCat = normalizeText(existingProduct.category);
+          const newCat = normalizeText(productData.category);
+
+          if (existingCat !== newCat) {
+            showCustomAlert(`You can only compare products from the same category (${existingProduct.category}).`);
+            return; // Hentikan proses simpan
+          }
         }
       }
 
       // Masukkan produk ke slot pilihan
       compareList[slotIndex] = productData;
 
-      // Simpan terus ke cloud Firestore!
+      // Simpan terus ke cloud Firestore
       await setDoc(userDocRef, {
         compareProducts: compareList
       }, { merge: true });
 
-      // Selepas berjaya simpan di cloud, pindah ke halaman perbandingan
+      // Pindah ke halaman perbandingan
       window.location.href = "comparisonpage.html";
 
     } catch (error) {
