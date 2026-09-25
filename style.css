@@ -978,30 +978,30 @@ html, body {
 }
 
 /* KOTAK KACA (GLASS CARD) */
+/* Glass Card Hanya Balut Table */
 .glass-card {
   width: 100%;
   box-sizing: border-box;
-  background: rgba(20, 15, 10, 0.65);
+  background: rgba(20, 15, 10, 0.55);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 14px;
   padding: 8px 10px;
-  margin-top: 6px;
-  clear: both; /* Elakkan daripada duduk bersebelahan elemen lain */
+  margin-top: 10px;
 }
 
-/* Profile Banner di dalam Kotak Kaca */
+/* Profile Banner di luar */
 .profile-banner {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.5);
   color: #d4af37;
   border-radius: 8px;
-  padding: 5px;
-  font-size: 0.68rem;
+  padding: 8px;
+  font-size: 0.75rem;
   font-weight: bold;
   text-align: center;
-  margin-bottom: 6px;
+  margin: 10px 0 5px 0;
   letter-spacing: 0.5px;
 }
 
