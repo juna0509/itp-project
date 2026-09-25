@@ -960,58 +960,107 @@ body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* Comparison Table */
-.comparison-table {
-  margin-top: 25px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+/* Lock skrin supaya muat 1 page tanpa scroll */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Halang drpd scroll */
 }
+
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px 12px;
+  box-sizing: border-box;
+}
+
+/* KOTAK KACA (GLASS CARD) */
+.glass-card {
+  background: rgba(25, 18, 12, 0.55); /* Warna gelap separa lutsinar */
+  backdrop-filter: blur(14px);         /* Kesan kabur background */
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.15); /* Garisan tepi berkilau */
+  border-radius: 16px;                 /* Bucu bulat kemas */
+  padding: 10px;
+  margin-top: 5px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Profile Banner di dalam Kotak Kaca */
+.profile-banner {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #d4af37;
+  border-radius: 8px;
+  padding: 5px;
+  font-size: 0.68rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* Comparison Table (Grid Version) */
+.comparison-table {
+  margin-top: 0;
+  border-top: none;
+}
+
 .table-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr; 
-  padding: 10px 0; /* Mengurangkan padding sedikit supaya lebih padat */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.75rem; /* Saiz teks yang lebih sesuai untuk skrin mudah alih */
+  padding: 3px 0; /* Dikurangkan ke 3px supaya sangat jimat ruang */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.68rem; /* Saiz teks sedikit ringkas */
   align-items: center;
   word-break: break-word; 
-  line-height: 1.3; /* Tambah jarak antara baris supaya teks panjang tak bertindih */
+  line-height: 1.15;
+}
+
+.table-row:last-child {
+  border-bottom: none; /* Buang garisan baris paling bawah */
 }
 
 .row-title {
   font-weight: 600;
   opacity: 0.9;
-  text-align: left; /* Tajuk/Label rapat ke kiri */
+  text-align: left;
 }
 
 .val-1, .val-2 {
-  text-align: center; /* Nilai produk 1 & 2 diratakan ke tengah */
+  text-align: center;
   word-break: break-word;
-  padding: 0 4px; /* Tambah ruang ke tepi supaya teks tak rapat sangat dengan garisan */
+  padding: 0 2px;
 }
 
 .empty-text {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.35);
   font-style: italic;
-  font-size: 0.72rem;
+  font-size: 0.65rem;
 }
-/* Action Button Container */
+
+/* Action Button Container - Rapatkan supaya muat 1 skrin */
 .action-btn-container {
-  margin-top: 25px;
-  padding-bottom: 80px;
+  margin-top: 8px;      /* Dikurangkan daripada 25px ke 8px */
+  padding-bottom: 0px;  /* Dibuang 80px yang menyebabkan scroll berlebihan */
 }
 
 .search-product-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  padding: 12px;
+  padding: 8px;        /* Dikurangkan daripada 12px ke 8px */
   background: #e0e0e0;
   color: #000000;
   border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.75rem;   /* Saiz butang lebih compact */
   letter-spacing: 0.5px;
   border: none;
   transition: background 0.2s;
