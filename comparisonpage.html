@@ -140,18 +140,33 @@
  <script type="module">
     import { auth, db } from "./firebase.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     let currentUserProfile = null;
+    let currentUserId = null;
 
-    // Semakan Keizinan Pengguna & Profil Firestore
+    // Semakan Keizinan Pengguna & Dengar Perubahan Firestore Secara Real-Time (Live)
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "loginpage.html";
       } else {
-        // Tunggu sehingga data profil dipanggil sebelum render halaman
-        await checkSkinProfileStatus(user.uid);
-        renderComparisonPage();
+        currentUserId = user.uid;
+
+        // 1. Ambil data profil pengguna terlebih dahulu
+        await checkSkinProfileStatus(currentUserId);
+
+        // 2. Pasang Listener REAL-TIME ke Firestore (onSnapshot)
+        // Mana-mana peranti yang login akaun ini akan bertukar paparan secara LIVE
+        onSnapshot(doc(db, "users", currentUserId), (docSnap) => {
+          let compareList = [null, null];
+          
+          if (docSnap.exists() && docSnap.data().compareProducts) {
+            compareList = docSnap.data().compareProducts;
+          }
+
+          // Render paparan setiap kali data di Firestore berubah
+          renderComparisonPage(compareList);
+        });
       }
     });
 
@@ -162,7 +177,6 @@
       if (Array.isArray(productShades)) {
         if (productShades.length === 0) return "N/A";
         
-        // Ambil data skin tone pengguna jika wujud
         const userTone = userProfile && userProfile.skinTone ? userProfile.skinTone.toLowerCase() : "";
         
         if (userTone) {
@@ -170,7 +184,6 @@
           if (match) return `✨ ${match}`;
         }
         
-        // Fallback automatik jika tiada carian spesifik
         return `✨ ${productShades[0]}`;
       }
 
@@ -184,26 +197,22 @@
       const price = Number(productPrice);
 
       if (userBudget === "low") {
-        // Budget (Under RM 50)
         return price <= 50 
           ? `<span style="color: #2ece72; font-weight: 600;">✅ Within Budget</span>`
           : `<span style="color: #ff4d4d; font-weight: 600;">⚠️ Over Budget</span>`;
       } else if (userBudget === "mid") {
-        // Mid-Range (RM 50 - RM 150)
         return price <= 150 
           ? `<span style="color: #2ece72; font-weight: 600;">✅ Within Budget</span>`
           : `<span style="color: #ff4d4d; font-weight: 600;">⚠️ Over Budget</span>`;
       } else if (userBudget === "luxury") {
-        // Luxury / High-End (RM 150+)
         return `<span style="color: #2ece72; font-weight: 600;">✅ Within Budget</span>`;
       }
 
       return null;
     }
 
-    // Fungsi Papar Data dari localStorage
-    function renderComparisonPage() {
-      const compareList = JSON.parse(localStorage.getItem('compareProducts')) || [null, null];
+    // Fungsi Papar Data terus dari Firestore
+    function renderComparisonPage(compareList) {
       const mainSearchBtn = document.getElementById('mainSearchBtn');
 
       // Tentukan slot sasaran untuk butang SEARCH PRODUCT utama
@@ -270,7 +279,7 @@
           // Reset slot ke keadaan asal jika kosong
           const imgElem = document.getElementById(`img-${slotNum}`);
           imgElem.style.display = 'none';
-          imgElem.src = ''; // Bersihkan src supaya gambar tidak tersisa
+          imgElem.src = '';
 
           document.getElementById(`empty-${slotNum}`).style.display = 'flex';
           document.getElementById(`remove-${slotNum}`).style.display = 'none';
@@ -345,17 +354,33 @@
       }
     }
 
-    // Fungsi Padam Produk dari Slot
-    function removeProduct(slotIndex) {
-      let compareList = JSON.parse(localStorage.getItem('compareProducts')) || [null, null];
-      compareList[slotIndex] = null;
-      localStorage.setItem('compareProducts', JSON.stringify(compareList));
-      renderComparisonPage();
+    // Fungsi Padam Produk dari Slot (Disimpan Terus ke Firestore)
+    async function removeProduct(slotIndex) {
+      if (!currentUserId) return;
+
+      try {
+        const userDocRef = doc(db, "users", currentUserId);
+        const userDocSnap = await getDoc(userDocRef);
+        
+        let compareList = [null, null];
+        if (userDocSnap.exists() && userDocSnap.data().compareProducts) {
+          compareList = userDocSnap.data().compareProducts;
+        }
+
+        compareList[slotIndex] = null;
+
+        // Kemaskini dalam Firestore
+        await setDoc(userDocRef, {
+          compareProducts: compareList
+        }, { merge: true });
+
+      } catch (error) {
+        console.error("Error removing product: ", error);
+      }
     }
 
     document.getElementById('remove-1').addEventListener('click', () => removeProduct(0));
     document.getElementById('remove-2').addEventListener('click', () => removeProduct(1));
 </script>
-
 </body>
 </html>

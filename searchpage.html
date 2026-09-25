@@ -133,11 +133,11 @@
   </div>
 </div>
 
-  <!-- Script Integrasi Firestore & Perbandingan -->
-  <script type="module">
+ <!-- Script Integrasi Firestore & Perbandingan -->
+<script type="module">
   import { auth, db } from "./firebase.js";
   import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { collection, getDocs, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const searchInput = document.getElementById('searchInput');
   const resultsGrid = document.getElementById('resultsGrid');
@@ -147,6 +147,7 @@
   const productModal = document.getElementById('productModal');
   const closeModal = document.getElementById('closeModal');
   let activeModalProduct = null;
+  let currentUserId = null; // Simpan ID pengguna yang sedang login
 
   const urlParams = new URLSearchParams(window.location.search);
   const targetSlot = urlParams.get('slot') || '1';
@@ -163,6 +164,7 @@
     if (!user) {
       window.location.href = "loginpage.html";
     } else {
+      currentUserId = user.uid; // Simpan user ID
       loadRandomProducts();
     }
   });
@@ -215,7 +217,6 @@
       const selectedCategory = activeCategoryChip ? normalizeText(activeCategoryChip.innerText) : null;
       const selectedLevel = activeLevelChip ? normalizeText(activeLevelChip.innerText) : null;
 
-      // Jika tiada mana-mana chip dipilih, paparkan rawak semula
       if (!selectedCategory && !selectedLevel) {
         loadRandomProducts();
         return;
@@ -294,10 +295,8 @@
         <div class="product-name">${item.name || 'Product Name'}</div>
         <div class="product-brand">${item.brand || 'Brand'}</div>
         
-        <!-- Paparan Jenis Produk & Finish -->
         <div class="product-type-badge" style="font-size:0.65rem; color:#c4b5a5;">Type: ${item.type || 'Standard'} | ${item.finish || 'Normal'}</div>
 
-        <!-- Paparan Pilihan Shades -->
         <div class="product-shades" style="font-size: 0.65rem; color: #888; margin: 4px 0;">
           <strong>Shades:</strong> ${item.shades && item.shades.length > 0 ? (Array.isArray(item.shades) ? item.shades.join(', ') : item.shades) : 'Standard'}
         </div>
@@ -308,9 +307,7 @@
         </button>
       `;
 
-      // Tekan kad produk untuk buka pop-up maklumat terperinci
       card.addEventListener('click', () => openProductModal(item));
-
       resultsGrid.appendChild(card);
     });
   }
@@ -359,30 +356,52 @@
     `;
   }
 
-  // Simpan ke localStorage & Kembali ke comparisonpage (Dengan Semakan Kategori & Custom Alert)
-  window.selectForCompare = function(productData) {
-    let compareList = JSON.parse(localStorage.getItem('compareProducts')) || [null, null];
-    const slotIndex = parseInt(targetSlot) - 1;
-    
-    // Tentukan slot lagi satu
-    const otherSlotIndex = slotIndex === 0 ? 1 : 0;
-    const existingProduct = compareList[otherSlotIndex];
-
-    // Semakan Kategori
-    if (existingProduct && existingProduct.category && productData.category) {
-      const existingCat = normalizeText(existingProduct.category);
-      const newCat = normalizeText(productData.category);
-
-      if (existingCat !== newCat) {
-        showCustomAlert(`You can only compare products from the same category (${existingProduct.category}).`);
-        return; // Hentikan proses simpan
-      }
+  // 4. SIMPAN TERUS KE FIRESTORE (BUKAN LOCALSTORAGE AGAIN)
+  window.selectForCompare = async function(productData) {
+    if (!currentUserId) {
+      showCustomAlert("Please login first.");
+      return;
     }
 
-    // Simpan jika melepasi semakan
-    compareList[slotIndex] = productData;
-    localStorage.setItem('compareProducts', JSON.stringify(compareList));
-    window.location.href = "comparisonpage.html";
+    try {
+      const userDocRef = doc(db, "users", currentUserId);
+      const userDocSnap = await getDoc(userDocRef);
+
+      let compareList = [null, null];
+      if (userDocSnap.exists() && userDocSnap.data().compareProducts) {
+        compareList = userDocSnap.data().compareProducts;
+      }
+
+      const slotIndex = parseInt(targetSlot) - 1;
+      const otherSlotIndex = slotIndex === 0 ? 1 : 0;
+      const existingProduct = compareList[otherSlotIndex];
+
+      // Semakan Kategori
+      if (existingProduct && existingProduct.category && productData.category) {
+        const existingCat = normalizeText(existingProduct.category);
+        const newCat = normalizeText(productData.category);
+
+        if (existingCat !== newCat) {
+          showCustomAlert(`You can only compare products from the same category (${existingProduct.category}).`);
+          return; // Hentikan proses
+        }
+      }
+
+      // Masukkan produk ke slot pilihan
+      compareList[slotIndex] = productData;
+
+      // Simpan terus ke cloud Firestore!
+      await setDoc(userDocRef, {
+        compareProducts: compareList
+      }, { merge: true });
+
+      // Selepas berjaya simpan di cloud, pindah ke halaman perbandingan
+      window.location.href = "comparisonpage.html";
+
+    } catch (error) {
+      console.error("Error saving compare product to Firestore: ", error);
+      showCustomAlert("Failed to save product selection. Please try again.");
+    }
   };
 
   // Penapis Chip Kategori & Level
