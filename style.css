@@ -960,94 +960,39 @@ body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* 1. Global Reset & Lock Viewport */
-html, body {
-  height: 100dvh; /* Menggunakan dvh supaya tepat mengikut skrin telefon */
-  margin: 0;
-  padding: 0;
-  overflow: hidden; /* Menghalang vertical scrollbar */
-  box-sizing: border-box;
-}
-
-/* 2. Main App Container Flexbox */
-.app-container {
-  height: 100dvh;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: space-between;
-  padding: 8px 12px 60px 12px; /* Bottom padding elak bertindih dgn bottom nav */
-  box-sizing: border-box;
-}
-
-/* 3. Header & Product Grid (Auto Shrink) */
-header, .header-title {
-  flex-shrink: 0;
-  margin-bottom: 4px !important;
-}
-
-.product-compare-grid, .product-cards-container {
-  flex-shrink: 0;
-  margin-bottom: 4px !important;
-}
-
-.product-card {
-  padding: 6px !important;
-}
-
-.product-card img {
-  max-height: 11dvh !important; /* Gambar ikut % ketinggian skrin */
-  object-fit: contain;
-}
-
-/* 4. Profile Banner (LUAR Kotak Glass) */
-#matchAnalysisBox, .profile-banner {
-  flex-shrink: 0;
-  width: 100% !important;
-  box-sizing: border-box;
-  margin: 2px 0 !important;
-  padding: 5px !important;
-  font-size: clamp(0.6rem, 2vh, 0.75rem) !important; /* Saiz teks mengikut skrin */
-}
-
-/* 5. Glass Card (Flex-1 supaya auto-fit ruang tengah) */
+//* Kotak Glass Khas (Hanya Membalut Table) */
 .glass-card {
-  flex: 1; /* Mengisi baki ruang kosong di tengah secara fleksibel */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100% !important;
+  width: 100%;
   box-sizing: border-box;
   background: rgba(20, 15, 10, 0.55);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
-  padding: 4px 8px !important;
-  margin: 4px 0 !important;
-  overflow: hidden;
+  padding: 4px 8px;
+  margin: 4px 0;
 }
 
-/* 6. Comparison Table Auto-Spacing */
+/* Comparison Table (Gaya Asal Anda + Pemampatan Saiz) */
 .comparison-table {
-  width: 100% !important;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly; /* Sebarkan baris table secara seimbang */
+  width: 100%;
+  margin-top: 0;
+  border-top: none;
 }
 
 .table-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  padding: 2px 0 !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: clamp(0.58rem, 1.8vh, 0.72rem) !important; /* Teks bertukar saiz ikut skrin */
+  grid-template-columns: 1fr 1fr 1fr; 
+  padding: 3px 0; /* Dikecilkan sikit supaya muat 1 skrin */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.7rem;
   align-items: center;
-  line-height: 1.1;
+  word-break: break-word; 
+  line-height: 1.2;
 }
 
 .table-row:last-child {
-  border-bottom: none !important;
+  border-bottom: none;
 }
 
 .row-title {
@@ -1059,14 +1004,19 @@ header, .header-title {
 .val-1, .val-2 {
   text-align: center;
   word-break: break-word;
-  padding: 0 2px;
+  padding: 0 4px;
 }
 
-/* 7. Action Button Container (Fixed di Bawah Table) */
+.empty-text {
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+  font-size: 0.68rem;
+}
+
+/* Action Button Container (Rapatkan margin supaya tak ber-scroll) */
 .action-btn-container {
-  flex-shrink: 0;
-  width: 100% !important;
-  margin-top: 4px !important;
+  margin-top: 6px;
+  padding-bottom: 0;
 }
 
 .search-product-btn {
@@ -1075,14 +1025,20 @@ header, .header-title {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: clamp(6px, 1.2vh, 10px) !important;
+  padding: 8px;
   background: #e0e0e0;
   color: #000000;
   border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
-  font-size: clamp(0.68rem, 2vh, 0.78rem) !important;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
   border: none;
+  transition: background 0.2s;
+}
+
+.search-product-btn:hover {
+  background: #ffffff;
 }
 
 .search-product-btn:hover {

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
+ <style>
     /* Styling untuk Category Filter Bar dengan Chips */
     .category-filter-bar {
       display: flex;
@@ -25,7 +25,7 @@
     .chip {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(226, 190, 110, 0.3);
-      color: #c4b5a5;
+      color: #f0ece9;
       padding: 6px 14px;
       border-radius: 20px;
       font-size: 0.75rem;
@@ -41,17 +41,110 @@
       border-color: #e2be6e;
       font-weight: 600;
     }
+
+    /* Gaya Teks Kad Produk Mengikut Search Page */
+    .product-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 4px 4px 4px;
+      text-align: left;
+    }
+
+    .product-brand {
+      font-size: 0.65rem !important;
+      color: rgba(255, 255, 255, 0.6) !important;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    .product-title {
+      font-size: 0.78rem !important;
+      font-weight: 600 !important;
+      color: #ffffff !important;
+      margin: 1px 0 3px 0 !important;
+      line-height: 1.2 !important;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .product-price {
+      font-size: 0.75rem !important;
+      font-weight: 600 !important;
+      color: #e0a96d !important;
+    }
+
+    /* Container Gambar Modal Full Width */
+    #modalImgContainer {
+      width: 100%;
+      height: 190px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    #modalImgContainer img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block;
+    }
+
+    /* Desain Estetis untuk Kotak Shade & Coverage */
+    .product-spec-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(226, 190, 110, 0.25);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin: 14px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+    }
+
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+    }
+
+    .spec-label {
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 500;
+    }
+
+    .spec-badge {
+      background: rgba(226, 190, 110, 0.15);
+      border: 1px solid rgba(226, 190, 110, 0.35);
+      color: #f3d078;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
   </style>
 </head>
 <body>
-
   <div class="app-container">
     <a href="profilepage.html" class="back-btn">&larr;</a>
     
     <!-- Header Page -->
     <div class="profile-header">
       <h2>RECOMMENDED FOR YOU</h2>
-      <p id="matchProfileTag">LOADING PROFILE...</p>
     </div>
 
     <!-- Match Summary Banner -->
@@ -59,7 +152,7 @@
       <div class="banner-icon">✨</div>
       <div class="banner-text">
         <h4>Personalized Selection</h4>
-        <p>Products curated based on your skin type & undertone.</p>
+        <p>Formulated to match your unique skin profile.</p>
       </div>
     </div>
 
@@ -95,7 +188,7 @@
     <div class="modal-content auth-form">
       <span class="close-btn" id="closeModalBtn">&times;</span>
       
-      <div class="modal-product-img" id="modalImgContainer" style="width: 100%; height: 140px; overflow: hidden; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+      <div class="modal-product-img" id="modalImgContainer">
         <span class="transparent-emoji" style="font-size: 3rem;">☒</span>
       </div>
       
@@ -105,15 +198,15 @@
         <div class="modal-price" id="modalPrice" style="font-size: 0.95rem; color: #e2be6e; font-weight: 600;">RM 00.00</div>
       </div>
 
-      <!-- Specs -->
-      <div class="product-specs" style="margin-top: 15px;">
-        <div class="spec-item">
+      <!-- Specs (Diubah suai ke kelas product-spec-box untuk kesan visual cantik) -->
+      <div class="product-specs product-spec-box" id="productSpecBox" style="margin-top: 15px;">
+        <div class="spec-item spec-row">
           <span class="spec-label">Recommended Shade</span>
-          <span class="spec-value" id="modalShade">Standard Match</span>
+          <span class="spec-value spec-badge" id="modalShade">Standard Match</span>
         </div>
-        <div class="spec-item">
+        <div class="spec-item spec-row">
           <span class="spec-label">Coverage</span>
-          <span class="spec-value" id="modalCoverage">Medium</span>
+          <span class="spec-value spec-badge" id="modalCoverage">Medium</span>
         </div>
       </div>
 
@@ -143,6 +236,7 @@
       <span>Profile</span>
     </a>
   </nav>
+</body>
 
 <script type="module">
   import { auth, db } from "./firebase.js";
@@ -157,6 +251,9 @@
   let allProductsList = [];
   let currentUserProfileData = null;
   let activeCategory = "ALL";
+
+  // Tandakan bahawa halaman aktif sekarang ialah recommended di dalam sessionStorage
+  sessionStorage.setItem("lastActivePage", "recommended.html");
 
   // Event Listener Tutup Modal
   closeModalBtn.addEventListener("click", () => {
@@ -191,25 +288,22 @@
         if (userDocSnap.exists()) {
           const data = userDocSnap.data();
 
-          if (data.profileCompleted && data.skinType && data.undertone) {
-            const skinType = data.skinType.toUpperCase();
-            const undertone = data.undertone.toUpperCase();
+          // Sub-header dibiarkan kosong mengikut kehendak anda
+          if (subHeader) subHeader.innerText = "";
 
-            subHeader.innerText = `BASED ON: ${skinType} SKIN | ${undertone} UNDERTONE`;
-            
+          if (data.profileCompleted && data.skinType && data.undertone) {
             currentUserProfileData = data;
             fetchRecommendations(data);
           } else {
-            subHeader.innerText = "PLEASE FILL IN YOUR SKIN PROFILE";
             recommendGrid.innerHTML = `<p style="color: #c4b5a5; font-size: 0.8rem; text-align: center; grid-column: 1/-1;">Please complete your skin profile to see recommendations.</p>`;
           }
         } else {
-          subHeader.innerText = "PLEASE FILL IN YOUR SKIN PROFILE";
+          if (subHeader) subHeader.innerText = "";
           recommendGrid.innerHTML = `<p style="color: #c4b5a5; font-size: 0.8rem; text-align: center; grid-column: 1/-1;">Please complete your skin profile to see recommendations.</p>`;
         }
       } catch (error) {
         console.error("Gagal membaca data profil:", error);
-        subHeader.innerText = "PLEASE FILL IN YOUR SKIN PROFILE";
+        if (subHeader) subHeader.innerText = "";
       }
     }
   });
@@ -220,9 +314,32 @@
       const productsRef = collection(db, "products");
       const querySnapshot = await getDocs(productsRef);
       
-      allProductsList = [];
+      let fetchedProducts = [];
       querySnapshot.forEach((docSnap) => {
-        allProductsList.push(docSnap.data());
+        fetchedProducts.push({ id: docSnap.id, ...docSnap.data() });
+      });
+
+      // Penapisan pintar berasaskan skinType dan budgetRange profil pengguna
+      allProductsList = fetchedProducts.filter(product => {
+        let isMatch = true;
+
+        if (userProfile.skinType && product.skinType) {
+          const productSkinTypes = Array.isArray(product.skinType) 
+            ? product.skinType.map(s => s.toLowerCase()) 
+            : product.skinType.toLowerCase();
+            
+          if (!productSkinTypes.includes(userProfile.skinType.toLowerCase()) && !productSkinTypes.includes('all skin types')) {
+            isMatch = false;
+          }
+        }
+
+        if (userProfile.budgetRange && product.price) {
+          const price = Number(product.price);
+          if (userProfile.budgetRange === 'low' && price > 50) isMatch = false;
+          if (userProfile.budgetRange === 'mid' && price > 150) isMatch = false;
+        }
+
+        return isMatch;
       });
 
       renderFilteredProducts();
@@ -239,7 +356,7 @@
     
     const filteredProducts = activeCategory === "ALL" 
       ? allProductsList 
-      : allProductsList.filter(p => p.category && p.category.toUpperCase() === activeCategory);
+      : allProductsList.filter(p => p.category && p.category.trim().toUpperCase() === activeCategory);
 
     if (filteredProducts.length === 0) {
       recommendGrid.innerHTML = `<p style="color: #c4b5a5; font-size: 0.8rem; text-align: center; grid-column: 1/-1;">No ${activeCategory.toLowerCase()} products found.</p>`;
@@ -251,6 +368,8 @@
       card.className = "product-card";
       card.style.cursor = "pointer";
       
+      const formattedPrice = (Number(product.price) || 0).toFixed(2);
+
       card.innerHTML = `
         <div class="product-img" style="width: 100%; height: 110px; overflow: hidden; border-radius: 8px; background: #1a1a1a; display: flex; align-items: center; justify-content: center;">
           ${product.image ? `<img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover; display: block;">` : `<span class="transparent-emoji" style="font-size: 2rem;">☒</span>`}
@@ -258,7 +377,7 @@
         <div class="product-details">
           <span class="product-brand">${product.brand || 'BRAND'}</span>
           <h4 class="product-title">${product.name || 'Product Name'}</h4>
-          <span class="product-price">RM ${product.price || '00.00'}</span>
+          <span class="product-price">RM ${formattedPrice}</span>
         </div>
       `;
 
@@ -269,10 +388,17 @@
 
   // Fungsi Membuka Modal & Memaparkan Details (Key Ingredients)
   function openProductModal(product, userProfile) {
+    const formattedPrice = (Number(product.price) || 0).toFixed(2);
+
     document.getElementById("modalBrand").innerText = product.brand || "BRAND";
     document.getElementById("modalName").innerText = product.name || "Product Name";
-    document.getElementById("modalPrice").innerText = `RM ${product.price || '00.00'}`;
-    document.getElementById("modalCoverage").innerText = product.coverage || product.level || "Medium";
+    document.getElementById("modalPrice").innerText = `RM ${formattedPrice}`;
+
+    const coverageValue = product.coverage || product.level || "Medium";
+    const modalCoverageElem = document.getElementById("modalCoverage");
+    if (modalCoverageElem) {
+      modalCoverageElem.innerText = coverageValue;
+    }
 
     const modalImgContainer = document.getElementById("modalImgContainer");
     if (product.image) {
@@ -289,7 +415,26 @@
     } else if (product.shades) {
       matchedShade = `✨ ${product.shades}`;
     }
-    document.getElementById("modalShade").innerText = matchedShade;
+    
+    const modalShadeElem = document.getElementById("modalShade");
+    if (modalShadeElem) {
+      modalShadeElem.innerText = matchedShade;
+    }
+
+    // Sokongan render dinamik jika spec box baru digunakan
+    const specContainer = document.getElementById("productSpecBox");
+    if (specContainer && specContainer.children.length === 0) {
+      specContainer.innerHTML = `
+        <div class="spec-row">
+          <span class="spec-label">Recommended Shade</span>
+          <span class="spec-badge" id="modalShade">${matchedShade}</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-label">Coverage</span>
+          <span class="spec-badge" id="modalCoverage">${coverageValue}</span>
+        </div>
+      `;
+    }
 
     const ingredientsElem = document.getElementById("modalKeyIngredients");
     if (product.keyIngredients) {

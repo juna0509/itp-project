@@ -9,15 +9,169 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
+<!-- Hanya letak di bahagian <head> dalam comparisonpage.html -->
+<style>
+  /* 1. Kunci Viewport untuk Comparison Page sahaja */
+/* 1. Reset Viewport Khas untuk Comparison Page */
+html, body {
+  height: 100dvh !important;
+  margin: 0;
+  padding: 0;
+  overflow: hidden !important;
+  box-sizing: border-box;
+}
+
+.app-container {
+  height: 100dvh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 4px 10px 65px 10px !important; /* Ruang bawah elak bertindih nav bar */
+  box-sizing: border-box;
+}
+
+/* 2. Header Title */
+header, .header-title {
+  margin-bottom: 2px !important;
+  padding: 0 !important;
+}
+
+/* 3. Kad Gambar Produk (Dikecilkan untuk jimat ruang) */
+.product-card {
+  padding: 2px 4px !important;
+}
+
+.product-card img {
+  max-height: 48px !important; /* Kecilkan saiz gambar */
+  object-fit: contain;
+}
+
+.product-card h3, .product-title {
+  font-size: 0.62rem !important;
+  margin: 1px 0 !important;
+  line-height: 1.1 !important;
+}
+
+.product-card p, .product-price {
+  font-size: 0.58rem !important;
+  margin: 1px 0 !important;
+}
+
+/* 4. Banner YOUR PROFILE (Nipis & Kemas) */
+#matchAnalysisBox, .profile-banner {
+  width: 100% !important;
+  box-sizing: border-box;
+  margin: 2px 0 !important;
+  padding: 2px 4px !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.3px;
+}
+
+/* 5. Glass Card (Diberi ruang lebih besar untuk table) */
+.glass-card {
+  width: 100% !important;
+  box-sizing: border-box;
+  background: rgba(20, 15, 10, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 6px 8px !important;
+  margin: 2px 0 !important;
+  flex: 1; /* Mengisi baki ruang tengah */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* 6. Comparison Table (Teks & Baris Lebih Selesa Dibaca) */
+.comparison-table {
+  width: 100% !important;
+  margin-top: 0 !important;
+  border-top: none !important;
+}
+
+.table-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 4px 0 !important; /* Ruang baris lebih selesa */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem !important; /* Font lebih jelas */
+  align-items: center;
+  line-height: 1.2;
+}
+
+.table-row:last-child {
+  border-bottom: none !important;
+}
+
+.row-title {
+  font-weight: 600;
+  opacity: 0.9;
+  text-align: left;
+}
+
+/* Kemasan Penambahbaikan #2: Saiz teks & spacing nipis untuk sel perbandingan */
+.val-1, .val-2 {
+  text-align: center;
+  word-break: break-word;
+  padding: 0 2px;
+  font-size: 0.68rem !important;
+  line-height: 1.15 !important;
+}
+
+/* Kemasan Penambahbaikan #1: Highlight Visual Cue untuk status padan */
+.val-1.match, .val-2.match, .status-good {
+  color: #4CAF50 !important; /* Warna hijau lembut untuk match */
+  font-weight: 600;
+}
+
+.empty-text {
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+  font-size: 0.68rem;
+}
+
+/* 7. Action Button Container */
+.action-btn-container {
+  width: 100% !important;
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
+}
+
+.search-product-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 10px !important;
+  background: #e0e0e0;
+  color: #000000;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.72rem !important;
+  border: none;
+  transition: background 0.2s, transform 0.1s;
+}
+
+/* Kemasan Penambahbaikan #3: Micro-interaction semasa butang ditekan */
+.search-product-btn:active {
+  transform: scale(0.97);
+  background: #ffffff;
+  opacity: 0.9;
+}
+</style>
 <body>
 
   <div class="app-container compare-main">
     
     <!-- Header Tajuk Elegan (Seragam dengan searchpage.html) -->
     <div class="profile-header" style="position: relative; margin-top: 10px;">
-      <a href="searchpage.html" class="back-arrow" style="position: absolute; left: 0; top: 0;">←</a>
+      <a href="searchpage.html"></a>
       <h2>COMPARE PRODUCTS</h2>
-      <p>COMPARE INGREDIENTS & SUITABILITY</p>
+      <p>WHAT DO YOU THINK ?</p>
     </div>
 
    <!-- Product Cards Grid -->
@@ -151,6 +305,7 @@
 
     let currentUserProfile = null;
     let currentUserId = null;
+    let currentCompareList = [null, null];
 
     // Semakan Keizinan Pengguna & Dengar Perubahan Firestore Secara Real-Time (Live)
     onAuthStateChanged(auth, async (user) => {
@@ -171,11 +326,77 @@
             compareList = docSnap.data().compareProducts;
           }
 
+          currentCompareList = compareList;
+
           // Render paparan setiap kali data di Firestore berubah
           renderComparisonPage(compareList);
         });
       }
     });
+
+    // Function to generate a cute, girly alert banner
+    function showUserFriendlyAlert(message) {
+      const existingAlert = document.getElementById('custom-ui-alert');
+      if (existingAlert) existingAlert.remove();
+
+      const alertBox = document.createElement('div');
+      alertBox.id = 'custom-ui-alert';
+      alertBox.style.cssText = `
+        position: fixed;
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 85%;
+        max-width: 380px;
+        background: rgba(35, 25, 20, 0.92);
+        color: #ffffff;
+        border: 1px solid rgba(212, 175, 55, 0.35);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 16px;
+        padding: 14px 18px;
+        font-size: 0.78rem;
+        line-height: 1.45;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      `;
+
+      alertBox.innerHTML = `
+        <div style="font-weight: 600; margin-bottom: 4px; color: #f3d078; font-size: 0.85rem;">
+          Oopps, slots are full, babe ! 🎀
+        </div>
+        <div style="opacity: 0.9; color: #f0f0f0;">
+          Tap <b>'x'</b> on any product above to swap ! 
+        </div>
+      `;
+
+      document.body.appendChild(alertBox);
+
+      setTimeout(() => {
+        alertBox.style.opacity = '1';
+        alertBox.style.transform = 'translateX(-50%) translateY(8px)';
+      }, 10);
+
+      setTimeout(() => {
+        alertBox.style.opacity = '0';
+        alertBox.style.transform = 'translateX(-50%) translateY(0px)';
+        setTimeout(() => alertBox.remove(), 300);
+      }, 3500);
+    }
+
+    // Attach slot check to main search button
+    const mainSearchBtn = document.getElementById('mainSearchBtn');
+    if (mainSearchBtn) {
+      mainSearchBtn.addEventListener('click', (e) => {
+        if (currentCompareList[0] && currentCompareList[1]) {
+          e.preventDefault();
+          showUserFriendlyAlert("Both comparison slots are full! Please remove a product by tapping the 'x' button before choosing a new one.");
+        }
+      });
+    }
 
     // Fungsi Padankan Shade Spesifik Mengikut Skin Tone Profile Pengguna
     function getMatchedShade(productShades, userProfile) {

@@ -148,6 +148,7 @@
   const closeModal = document.getElementById('closeModal');
   let activeModalProduct = null;
   let currentUserId = null; // Simpan ID pengguna yang sedang login
+  let allFetchedProducts = []; // Simpan semua produk dari database
 
   const urlParams = new URLSearchParams(window.location.search);
   const targetSlot = urlParams.get('slot') || '1';
@@ -189,22 +190,24 @@
     closeCross.onclick = closeHandler;
   }
 
-  // 1. Muatkan Produk Rawak (Default)
+  // 1. Muatkan SEMUA Produk ke dalam memori
   async function loadRandomProducts() {
     try {
       const productsRef = collection(db, "products");
       const querySnapshot = await getDocs(productsRef);
       
       if (!querySnapshot.empty) {
-        let allProducts = [];
-        querySnapshot.forEach(doc => allProducts.push(doc.data()));
-        const randomProducts = allProducts.sort(() => 0.5 - Math.random()).slice(0, 6);
+        allFetchedProducts = [];
+        querySnapshot.forEach(doc => allFetchedProducts.push({ id: doc.id, ...doc.data() }));
+        
+        // Paparkan 6 produk rawak sebagai paparan lalai (default)
+        const randomProducts = [...allFetchedProducts].sort(() => 0.5 - Math.random()).slice(0, 6);
         renderProducts(randomProducts);
       } else {
         showEmptyMessage();
       }
     } catch (error) {
-      console.error("Error loading random products: ", error);
+      console.error("Error loading products: ", error);
     }
   }
 
@@ -218,42 +221,31 @@
       const selectedLevel = activeLevelChip ? normalizeText(activeLevelChip.innerText) : null;
 
       if (!selectedCategory && !selectedLevel) {
-        loadRandomProducts();
+        const randomProducts = [...allFetchedProducts].sort(() => 0.5 - Math.random()).slice(0, 6);
+        renderProducts(randomProducts);
         return;
       }
 
-      const productsRef = collection(db, "products");
-      const querySnapshot = await getDocs(productsRef);
-      
-      if (!querySnapshot.empty) {
-        let filteredProducts = [];
-        
-        querySnapshot.forEach(doc => {
-          const item = doc.data();
-          const itemCategory = normalizeText(item.category);
-          const itemLevel = normalizeText(item.level);
+      const filteredProducts = allFetchedProducts.filter(item => {
+        const itemCategory = normalizeText(item.category);
+        const itemLevel = normalizeText(item.level);
 
-          let matchCategory = true;
-          let matchLevel = true;
+        let matchCategory = true;
+        let matchLevel = true;
 
-          if (selectedCategory) {
-            matchCategory = (itemCategory === selectedCategory);
-          }
-
-          if (selectedLevel) {
-            matchLevel = (itemLevel === selectedLevel);
-          }
-
-          if (matchCategory && matchLevel) {
-            filteredProducts.push(item);
-          }
-        });
-
-        if (filteredProducts.length > 0) {
-          renderProducts(filteredProducts);
-        } else {
-          showEmptyMessage();
+        if (selectedCategory) {
+          matchCategory = (itemCategory === selectedCategory);
         }
+
+        if (selectedLevel) {
+          matchLevel = (itemLevel === selectedLevel);
+        }
+
+        return matchCategory && matchLevel;
+      });
+
+      if (filteredProducts.length > 0) {
+        renderProducts(filteredProducts);
       } else {
         showEmptyMessage();
       }
@@ -351,13 +343,12 @@
   function showEmptyMessage() {
     resultsGrid.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 20px; opacity: 0.6; font-size: 0.85rem;">
-        Tiada produk dijumpai.
+        No products found 
       </div>
     `;
   }
 
-  // 4. SIMPAN TERUS KE FIRESTORE (BUKAN LOCALSTORAGE AGAIN)
-  // SIMPAN TERUS KE FIRESTORE (DENGAN SEMAKAN PRODUK SAMA & KATEGORI)
+  // 4. SIMPAN TERUS KE FIRESTORE (DENGAN SEMAKAN PRODUK SAMA & KATEGORI)
   window.selectForCompare = async function(productData) {
     if (!currentUserId) {
       showCustomAlert("Please login first.");
@@ -431,22 +422,36 @@
     });
   });
 
-  // Carian Live Search mengikut Nama, Brand, atau Type
+  // Carian Live Search merangkumi KESELURUHAN database produk (Mengabaikan sekatan chip)
   searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase().trim();
-    const cards = document.querySelectorAll('.product-card');
 
-    cards.forEach(card => {
-      const name = card.querySelector('.product-name')?.innerText.toLowerCase() || '';
-      const brand = card.querySelector('.product-brand')?.innerText.toLowerCase() || '';
-      const type = card.getAttribute('data-type') || '';
+    if (searchTerm === "") {
+      const randomProducts = [...allFetchedProducts].sort(() => 0.5 - Math.random()).slice(0, 6);
+      renderProducts(randomProducts);
+      return;
+    }
 
-      if (name.includes(searchTerm) || brand.includes(searchTerm) || type.includes(searchTerm)) {
-        card.style.display = "block";
-      } else {
-        card.style.display = "none";
-      }
+    // Buang pilihan chip yang aktif supaya carian teks tidak tersekat
+    chips.forEach(c => c.classList.remove('active'));
+
+    const filtered = allFetchedProducts.filter(item => {
+      const name = (item.name || '').toLowerCase();
+      const brand = (item.brand || '').toLowerCase();
+      const category = (item.category || '').toLowerCase();
+      const type = (item.type || '').toLowerCase();
+
+      return name.includes(searchTerm) || 
+             brand.includes(searchTerm) || 
+             category.includes(searchTerm) || 
+             type.includes(searchTerm);
     });
+
+    if (filtered.length > 0) {
+      renderProducts(filtered);
+    } else {
+      showEmptyMessage();
+    }
   });
 </script>
 </body>
