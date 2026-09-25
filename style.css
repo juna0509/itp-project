@@ -979,14 +979,16 @@ html, body {
 
 /* KOTAK KACA (GLASS CARD) */
 .glass-card {
-  background: rgba(25, 18, 12, 0.55); /* Warna gelap separa lutsinar */
-  backdrop-filter: blur(14px);         /* Kesan kabur background */
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.15); /* Garisan tepi berkilau */
-  border-radius: 16px;                 /* Bucu bulat kemas */
-  padding: 10px;
-  margin-top: 5px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(20, 15, 10, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 8px 10px;
+  margin-top: 6px;
+  clear: both; /* Elakkan daripada duduk bersebelahan elemen lain */
 }
 
 /* Profile Banner di dalam Kotak Kaca */
