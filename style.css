@@ -960,7 +960,6 @@ body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-//* Lock skrin supaya muat 1 page penuh tanpa scroll */
 /* 1. Global Reset & Lock Viewport */
 html, body {
   height: 100dvh; /* Menggunakan dvh supaya tepat mengikut skrin telefon */
