@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfect Match</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <main class="auth-main">
+    <!-- Butang Kembali (Guna unicode ← secara terus) -->
+    <a href="loginpage.html" class="back-btn">←</a>
+
+    <!-- Form Pendaftaran -->
+    <form class="auth-form" id="registerForm">
+      <div class="input-group">
+        <label for="reg-name">Full Name</label>
+        <input type="text" id="reg-name" placeholder="Enter your name" required>
+      </div>
+
+      <div class="input-group">
+        <label for="reg-email">Email Address</label>
+        <input type="email" id="reg-email" placeholder="Enter your email" required>
+      </div>
+
+      <div class="input-group">
+        <label for="reg-password">Password</label>
+        <input type="password" id="reg-password" placeholder="Create a password" required>
+      </div>
+
+      <div class="input-group">
+        <label for="confirm-password">Confirm Password</label>
+        <input type="password" id="confirm-password" placeholder="Re-enter your password" required>
+      </div>
+
+      <button type="submit" class="auth-btn">CREATE ACCOUNT</button>
+    </form>
+
+    <!-- Pembahagi & Pautan Log Masuk -->
+    <div class="auth-footer">
+      <div class="or-divider">OR</div>
+      <p>Already have an account? <a href="loginpage.html">Login</a></p>
+    </div>
+  </main>
+
+ <script type="module">
+  import { auth, db } from './firebase.js';
+  import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const registerForm = document.getElementById('registerForm');
+  const submitBtn = registerForm.querySelector("button[type='submit']");
+
+  if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      // 1. Semakan Pengesahan Kata Laluan
+      if (password !== confirmPassword) {
+        alert("Kata laluan dan Pengesahan Kata Laluan tidak sama!");
+        return;
+      }
+
+      // 2. Semakan Validasi Domain Email (Hanya @gmail.com)
+      if (!email.toLowerCase().endsWith('@gmail.com')) {
+        alert("Pendaftaran hanya dibenarkan menggunakan akaun @gmail.com sahaja!");
+        return;
+      }
+
+      submitBtn.innerText = "CREATING ACCOUNT...";
+      submitBtn.disabled = true;
+
+      try {
+        // 3. Cipta akaun di Firebase Authentication
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // 4. Simpan profil pengguna baharu ke Firestore Database
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          fullName: name,
+          email: email,
+          profileCompleted: false,
+          createdAt: new Date()
+        });
+
+        // 5. Log keluar pengguna serta-merta supaya perlu log masuk semula secara bersih
+        await signOut(auth);
+
+        alert("Welcome to Perfect Match, where beauty meets perfection.");
+        
+        // 6. Pindah ke halaman log masuk
+        window.location.href = "loginpage.html";
+
+      } catch (error) {
+        console.error("Signup error:", error);
+        
+        if (error.code === 'auth/email-already-in-use') {
+          alert("It looks like you already have an account with us. Please log in or use another email address.");
+        } else if (error.code === 'auth/weak-password') {
+          alert("Your password must be at least 6 characters. Please try again.");
+        } else {
+          alert("Something went wrong while creating your account. Please try again.: " + error.message);
+        }
+
+        submitBtn.innerText = "CREATE ACCOUNT";
+        submitBtn.disabled = false;
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

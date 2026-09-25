@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfect Match - Recommendations</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Styling untuk Category Filter Bar dengan Chips */
+    .category-filter-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 5px 0 12px 0;
+      margin-bottom: 10px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .category-filter-bar::-webkit-scrollbar {
+      display: none;
+    }
+    .chip {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(226, 190, 110, 0.3);
+      color: #c4b5a5;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+    .chip.active, .chip:hover {
+      background: #e2be6e;
+      color: #121212;
+      border-color: #e2be6e;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <a href="profilepage.html" class="back-btn">&larr;</a>
+    
+    <!-- Header Page -->
+    <div class="profile-header">
+      <h2>RECOMMENDED FOR YOU</h2>
+      <p id="matchProfileTag">LOADING PROFILE...</p>
+    </div>
+
+    <!-- Match Summary Banner -->
+    <div class="recommend-banner">
+      <div class="banner-icon">✨</div>
+      <div class="banner-text">
+        <h4>Personalized Selection</h4>
+        <p>Products curated based on your skin type & undertone.</p>
+      </div>
+    </div>
+
+    <!-- Results Grid Section -->
+    <div class="section-title">Top Matches</div>
+
+    <!-- Category Filter Bar (Semua 13 Kategori Chip) -->
+    <div class="category-filter-bar" id="categoryFilterBar">
+      <div class="chip active">ALL</div>
+      <div class="chip">Foundation</div>
+      <div class="chip">Concealer</div>
+      <div class="chip">Eyeshadow</div>
+      <div class="chip">Lipstick</div>
+      <div class="chip">Blush</div>
+      <div class="chip">Primer</div>
+      <div class="chip">Loose Powder</div>
+      <div class="chip">Compact Powder</div>
+      <div class="chip">Cushion Foundation</div>
+      <div class="chip">Bronzer</div>
+      <div class="chip">Contour</div>
+      <div class="chip">Highlighter</div>
+      <div class="chip">Setting Spray</div>
+    </div>
+
+    <div class="results-grid" id="recommendGrid">
+      <p style="color: #c4b5a5; font-size: 0.8rem; text-align: center; grid-column: 1/-1;">Loading recommendations...</p>
+    </div>
+
+  </div>
+
+  <!-- Pop-Up Modal Detail Produk -->
+  <div class="product-modal" id="productModal" style="display: none;">
+    <div class="modal-content auth-form">
+      <span class="close-btn" id="closeModalBtn">&times;</span>
+      
+      <div class="modal-product-img" id="modalImgContainer" style="width: 100%; height: 140px; overflow: hidden; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+        <span class="transparent-emoji" style="font-size: 3rem;">☒</span>
+      </div>
+      
+      <div class="modal-header" style="text-align: center; margin-top: 10px;">
+        <span class="modal-brand" id="modalBrand" style="font-size: 0.7rem; color: #e2be6e; letter-spacing: 1.5px; text-transform: uppercase;">BRAND</span>
+        <h3 class="modal-title" id="modalName" style="font-size: 1.1rem; color: #fff; margin: 4px 0;">Product Name</h3>
+        <div class="modal-price" id="modalPrice" style="font-size: 0.95rem; color: #e2be6e; font-weight: 600;">RM 00.00</div>
+      </div>
+
+      <!-- Specs -->
+      <div class="product-specs" style="margin-top: 15px;">
+        <div class="spec-item">
+          <span class="spec-label">Recommended Shade</span>
+          <span class="spec-value" id="modalShade">Standard Match</span>
+        </div>
+        <div class="spec-item">
+          <span class="spec-label">Coverage</span>
+          <span class="spec-value" id="modalCoverage">Medium</span>
+        </div>
+      </div>
+
+      <!-- Key Ingredients Only -->
+      <div class="modal-description" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
+        <label style="color: #e2be6e; font-size: 0.8rem; letter-spacing: 1px; font-weight: 600; text-transform: uppercase;">🌿 Key Ingredients</label>
+        <p id="modalKeyIngredients" style="font-size: 0.85rem; color: #d1c7bd; margin-top: 6px; line-height: 1.4;">Loading key ingredients...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <a href="searchpage.html" class="nav-item">
+      <svg class="search-svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <span>Search</span>
+    </a>
+    <a href="comparisonpage.html" class="nav-item">
+      <span class="nav-icon transparent-emoji">⚖️</span>
+      <span>Compare</span>
+    </a>
+    <a href="profilepage.html" class="nav-item active">
+      <span class="nav-icon transparent-emoji">👤</span>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+<script type="module">
+  import { auth, db } from "./firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { doc, getDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const subHeader = document.querySelector(".profile-header p");
+  const recommendGrid = document.getElementById("recommendGrid");
+  const productModal = document.getElementById("productModal");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+
+  let allProductsList = [];
+  let currentUserProfileData = null;
+  let activeCategory = "ALL";
+
+  // Event Listener Tutup Modal
+  closeModalBtn.addEventListener("click", () => {
+    productModal.style.display = "none";
+  });
+
+  window.addEventListener("click", (event) => {
+    if (event.target === productModal) {
+      productModal.style.display = "none";
+    }
+  });
+
+  // Event Listener untuk Chips Filter
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", (e) => {
+      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      e.target.classList.add("active");
+      
+      activeCategory = e.target.innerText.trim().toUpperCase();
+      renderFilteredProducts();
+    });
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "loginpage.html";
+    } else {
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+          const data = userDocSnap.data();
+
+          if (data.profileCompleted && data.skinType && data.undertone) {
+            const skinType = data.skinType.toUpperCase();
+            const undertone = data.undertone.toUpperCase();
+
+            subHeader.innerText = `BASED ON: ${skinType} SKIN | ${undertone} UNDERTONE`;
+            
+            currentUserProfileData = data;
+            fetchRecommendations(data);
+          } else {
+            subHeader.innerText = "PLEASE FILL IN YOUR SKIN PROFILE";
+            recommendGrid.innerHTML = `<p style="color: #c4b5a5; font-size: 0.8rem; text-align: center; grid-column: 1/-1;">Please complete your skin profile to see recommendations.</p>`;
+          }
+        } else {
+          subHeader.innerText = "PLEASE FILL IN YOUR SKIN PROFILE";
+          recommendGrid.innerHTML = `<p style="color: #c4b5a5; font-size: 0.8rem; text-align: center; grid-column: 1/-1;">Please complete your skin profile to see recommendations.</p>`;
+        }
+      } catch (error) {
+        console.error("Gagal membaca data profil:", error);
+        subHeader.innerText = "PLEASE FILL IN YOUR SKIN PROFILE";
+      }
+    }
+  });
+
+  // Fungsi mengambil produk bersesuaian dari Firestore
+  async function fetchRecommendations(userProfile) {
+    try {
+      const productsRef = collection(db, "products");
+      const querySnapshot = await getDocs(productsRef);
+      
+      allProductsList = [];
+      querySnapshot.forEach((docSnap) => {
+        allProductsList.push(docSnap.data());
+      });
+
+      renderFilteredProducts();
+
+    } catch (error) {
+      console.error("Gagal mengambil cadangan produk:", error);
+      recommendGrid.innerHTML = `<p style="color: #c4b5a5; font-size: 0.8rem; text-align: center; grid-column: 1/-1;">Error loading products.</p>`;
+    }
+  }
+
+  // Fungsi menapis dan memaparkan produk mengikut chip aktif
+  function renderFilteredProducts() {
+    recommendGrid.innerHTML = "";
+    
+    const filteredProducts = activeCategory === "ALL" 
+      ? allProductsList 
+      : allProductsList.filter(p => p.category && p.category.toUpperCase() === activeCategory);
+
+    if (filteredProducts.length === 0) {
+      recommendGrid.innerHTML = `<p style="color: #c4b5a5; font-size: 0.8rem; text-align: center; grid-column: 1/-1;">No ${activeCategory.toLowerCase()} products found.</p>`;
+      return;
+    }
+
+    filteredProducts.forEach((product) => {
+      const card = document.createElement("div");
+      card.className = "product-card";
+      card.style.cursor = "pointer";
+      
+      card.innerHTML = `
+        <div class="product-img" style="width: 100%; height: 110px; overflow: hidden; border-radius: 8px; background: #1a1a1a; display: flex; align-items: center; justify-content: center;">
+          ${product.image ? `<img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover; display: block;">` : `<span class="transparent-emoji" style="font-size: 2rem;">☒</span>`}
+        </div>
+        <div class="product-details">
+          <span class="product-brand">${product.brand || 'BRAND'}</span>
+          <h4 class="product-title">${product.name || 'Product Name'}</h4>
+          <span class="product-price">RM ${product.price || '00.00'}</span>
+        </div>
+      `;
+
+      card.addEventListener("click", () => openProductModal(product, currentUserProfileData));
+      recommendGrid.appendChild(card);
+    });
+  }
+
+  // Fungsi Membuka Modal & Memaparkan Details (Key Ingredients)
+  function openProductModal(product, userProfile) {
+    document.getElementById("modalBrand").innerText = product.brand || "BRAND";
+    document.getElementById("modalName").innerText = product.name || "Product Name";
+    document.getElementById("modalPrice").innerText = `RM ${product.price || '00.00'}`;
+    document.getElementById("modalCoverage").innerText = product.coverage || product.level || "Medium";
+
+    const modalImgContainer = document.getElementById("modalImgContainer");
+    if (product.image) {
+      modalImgContainer.innerHTML = `<img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">`;
+    } else {
+      modalImgContainer.innerHTML = `<span class="transparent-emoji" style="font-size: 3rem;">☒</span>`;
+    }
+
+    let matchedShade = "Standard Match";
+    if (Array.isArray(product.shades) && product.shades.length > 0) {
+      const tone = (userProfile && userProfile.skinTone) ? userProfile.skinTone.toLowerCase() : "";
+      const found = product.shades.find(s => s.toLowerCase().includes(tone));
+      matchedShade = found ? `✨ ${found}` : `✨ ${product.shades[0]}`;
+    } else if (product.shades) {
+      matchedShade = `✨ ${product.shades}`;
+    }
+    document.getElementById("modalShade").innerText = matchedShade;
+
+    const ingredientsElem = document.getElementById("modalKeyIngredients");
+    if (product.keyIngredients) {
+      if (Array.isArray(product.keyIngredients)) {
+        ingredientsElem.innerHTML = product.keyIngredients.map(ing => `• ${ing}`).join("<br>");
+      } else {
+        ingredientsElem.innerText = product.keyIngredients;
+      }
+    } else {
+      ingredientsElem.innerText = "Information not available.";
+    }
+
+    productModal.style.display = "flex";
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfect Match</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <main class="auth-main profile-main">
+    <!-- Butang Anak Panah Kembali ke Sign Up -->
+    <a href="profilepage.html" class="back-btn">&larr;</a>
+
+    <div class="profile-header">
+      <h2>BUILD YOUR PROFILE</h2>
+      <p>Help us find your perfect beauty match</p>
+    </div>
+
+    <!-- Form Skin Profile -->
+    <form class="auth-form profile-form" id="skinProfileForm">
+      
+      <!-- 1. Skin Type -->
+      <div class="input-group">
+        <label>1. Skin Type</label>
+        <select id="skinType" required>
+          <option value="" disabled selected>Select your skin type</option>
+          <option value="oily">Oily</option>
+          <option value="dry">Dry</option>
+          <option value="combination">Combination</option>
+          <option value="normal">Normal</option>
+          <option value="sensitive">Sensitive</option>
+        </select>
+      </div>
+
+      <!-- 2. Skin Tone -->
+      <div class="input-group">
+        <label>2. Skin Tone</label>
+        <select id="skinTone" required>
+          <option value="" disabled selected>Select your skin tone</option>
+          <option value="fair">Fair / Light</option>
+          <option value="medium">Medium / Tan</option>
+          <option value="deep">Deep / Dark</option>
+        </select>
+      </div>
+
+      <!-- 3. Undertone -->
+      <div class="input-group">
+        <label>3. Undertone</label>
+        <select id="undertone" required>
+          <option value="" disabled selected>Select your undertone</option>
+          <option value="cool">Cool (Pink / Redish)</option>
+          <option value="warm">Warm (Yellow / Golden)</option>
+          <option value="neutral">Neutral (Mix of Cool & Warm)</option>
+        </select>
+      </div>
+
+      <!-- 4. Skin Concern -->
+      <div class="input-group">
+        <label>4. Main Skin Concern</label>
+        <select id="skinConcern" required>
+          <option value="" disabled selected>Select primary concern</option>
+          <option value="acne">Acne & Blemishes</option>
+          <option value="aging">Anti-Aging & Fine Lines</option>
+          <option value="hyperpigmentation">Dark Spots / Pigmentation</option>
+          <option value="dryness">Dryness & Dullness</option>
+          <option value="pores">Large Pores</option>
+        </select>
+      </div>
+
+      <!-- 5. Preferred Finish -->
+      <div class="input-group">
+        <label>5. Preferred Makeup Finish</label>
+        <select id="preferredFinish" required>
+          <option value="" disabled selected>Select preferred finish</option>
+          <option value="matte">Matte</option>
+          <option value="dewy">Dewy / Glowy</option>
+          <option value="satin">Satin / Natural</option>
+        </select>
+      </div>
+
+      <!-- 6. Budget Range -->
+      <div class="input-group">
+        <label>6. Budget Range (MYR)</label>
+        <select id="budgetRange" required>
+          <option value="" disabled selected>Select your budget</option>
+          <option value="low">Budget (Under RM 50)</option>
+          <option value="mid">Mid-Range (RM 50 - RM 150)</option>
+          <option value="luxury">Luxury / High-End (RM 150+)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="auth-btn" id="saveBtn">SAVE & CONTINUE</button>
+    </form>
+  </main>
+
+  <!-- Skrip Logic Firestore -->
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const form = document.getElementById('skinProfileForm');
+    const saveBtn = document.getElementById('saveBtn');
+
+    // Semak pengguna yang sedang log masuk
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        // Jika tiada akaun diakses, kembalikan ke signup
+        window.location.href = "signup.html";
+      } else {
+        const userRef = doc(db, "users", user.uid);
+
+        // 1. TAMPILKAN SEMULA DATA JIKA SUDAH ADA PADA FIRESTORE
+        try {
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            const data = userSnap.data();
+
+            // Tetapkan nilai pilihan dropdown mengikut data tersimpan
+            if (data.skinType) document.getElementById('skinType').value = data.skinType;
+            if (data.skinTone) document.getElementById('skinTone').value = data.skinTone;
+            if (data.undertone) document.getElementById('undertone').value = data.undertone;
+            if (data.skinConcern) document.getElementById('skinConcern').value = data.skinConcern;
+            if (data.preferredFinish) document.getElementById('preferredFinish').value = data.preferredFinish;
+            if (data.budgetRange) document.getElementById('budgetRange').value = data.budgetRange;
+          }
+        } catch (error) {
+          console.error("Error loading saved profile:", error);
+        }
+
+        // 2. PROSES SIMPAN / KEMASKINI DATA PROFIL
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          saveBtn.innerText = "SAVING...";
+          saveBtn.disabled = true;
+
+          try {
+            // Gunakan setDoc dengan merge: true supaya selamat jika dokumen belum wujud
+            await setDoc(userRef, {
+              skinType: document.getElementById('skinType').value,
+              skinTone: document.getElementById('skinTone').value,
+              undertone: document.getElementById('undertone').value,
+              skinConcern: document.getElementById('skinConcern').value,
+              preferredFinish: document.getElementById('preferredFinish').value,
+              budgetRange: document.getElementById('budgetRange').value,
+              profileCompleted: true,
+              updatedAt: new Date()
+            }, { merge: true });
+
+            // Berjaya simpan -> Pindah ke searchpage.html
+            window.location.href = "searchpage.html";
+          } catch (error) {
+            console.error("Error saving profile:", error);
+            alert("Failed to save profile: " + error.message);
+            saveBtn.innerText = "SAVE & CONTINUE";
+            saveBtn.disabled = false;
+          }
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

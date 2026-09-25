@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Full Cosmetics Data to Firestore</title>
+</head>
+<body style="font-family: sans-serif; padding: 40px; text-align: center; background-color: #121212; color: #fff;">
+  <h2>Upload All Products to Firestore</h2>
+  <p>Click the button below to upload all products.</p>
+  
+  <button id="uploadBtn" style="padding: 12px 24px; font-size: 1rem; cursor: pointer; background-color: #e2be6e; border: none; font-weight: bold; border-radius: 6px;">
+    Start Product Upload
+  </button>
+  
+  <h3 id="status" style="margin-top: 20px; color: #e2be6e;"></h3>
+
+  <script type="module">
+    import { db } from "./firebase.js";
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const sampleProducts = [
+      // =========================================================================
+      // 1. FOUNDATION (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Maaez",
+        name: "Luminous Silky Foundation",
+        category: "Foundation",
+        price: "72.90",
+        level: "Local",
+        skinType: ["Dry", "Combination", "Normal"],
+        coverage: "Full Coverage",
+        image: "./maeezfsilk.png",
+        keyIngredients: ["Hyaluronic Acid: Hydrates deep skin layers.", "Glycerin: Prevents makeup cracking."],
+        shades: ["Snow", "Cream Brulee", "Honey", "Caramel"]
+      },
+      {
+        brand: "Maaez",
+        name: "Make It Glow Foundation",
+        category: "Foundation",
+        price: "37.90",
+        level: "Local",
+        skinType: ["Dry", "Normal"],
+        coverage: "Medium to Full Coverage",
+        image: "./maeezfmake.png",
+        keyIngredients: ["Snow Mushroom: Delivers intense hydration.", "Vitamin C: Brightens skin complexion."],
+        shades: ["Snow", "Cream Cheese", "Honey", "Caramel"]
+      },
+      {
+        brand: "Sally",
+        name: "Sally Foundation",
+        category: "Foundation",
+        price: "37.90",
+        level: "Local",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./sallyfd.png",
+        keyIngredients: ["Silica: Absorbs oil for matte finish.", "Glycerin: Maintains skin balance."],
+        shades: ["Light", "Medium", "Tan", "Dark"]
+      },
+      {
+       brand: "Alha Alfa",
+       name: "Royal Propolis Luminous Silk Foundation",
+       category: "Foundation",
+       price: "59.90",
+       level: "Local",
+       skinType: ["All Skin Types"],
+       coverage: "Full Coverage",
+       finish: "Natural Radiant Finish",
+       image: "./AAfd.png",
+       keyIngredients: [ "Propolis Extract: Helps keep the skin moisturised and supports a healthy-looking complexion.","Vitamin E: Helps nourish and protect the skin."],
+       shades: ["RPF10 - Acacia","RPF20 - Auri",   "RPF30 - Bluebell","RPF40 - Fervi","RPF50 - Ficus","RPF60 - Edel","RPF70 - Morri", "RPF80 - Oxalis"]
+      },
+      {
+        brand: "Cubre Mi",
+        name: "Matte Liquid Foundation",
+        category: "Foundation",
+        price: "29.90",
+        level: "Local",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./cubremifd.png",
+        keyIngredients: ["Argan Oil: Balances sebum production.", "Vitamin C: Improves radiance."],
+        shades: ["Light", "Natural", "Tanned"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Maybelline",
+        name: "Fit Me Matte + Poreless Foundation",
+        category: "Foundation",
+        price: "52.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Medium Coverage",
+        image: "./maybellinefdmatte.png",
+        keyIngredients: ["Micro-powders: Controls shine and blurs pores.", "Perlite: Absorbs sebum."],
+        shades: ["118 Light Beige", "120 Classic Ivory", "128 Warm Nude", "220 Natural Beige"]
+      },
+      {
+        brand: "Maybelline",
+        name: "Fit Me Dewy + Smooth Foundation",
+        category: "Foundation",
+        price: "59.50",
+        level: "Drugstore",
+        skinType: ["Dry", "Normal"],
+        coverage: "Medium Coverage",
+        image: "./maybellinefd.png",
+        keyIngredients: ["Glycerin: Hydrates dry texture.", "Octinoxate: Protects against sun damage."],
+        shades: ["115 Ivory", "120 Classic Ivory", "220 Natural Beige", "235 Pure Beige"]
+      },
+      {
+        brand: "L'Oréal",
+        name: "True Match Super-Blendable Foundation",
+        category: "Foundation",
+        price: "76.90",
+        level: "Drugstore",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "Medium to Full Coverage",
+        image: "./lorealfd.png",
+        keyIngredients: ["Hyaluronic Acid: Moisture retention.", "Pro-Vitamin B5: Calms inflammation."],
+        shades: ["N1 Neutral Ivory", "W2 Warm Light", "N4 Neutral Beige", "G5 Golden Sun"]
+      },
+      {
+        brand: "Revlon",
+        name: "ColorStay Makeup for Combination/Oily Skin",
+        category: "Foundation",
+        price: "68.00",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./revlonfd.png",
+        keyIngredients: ["Salicylic Acid: Controls oil production.", "Silica: Long-lasting shine control."],
+        shades: ["180 Sand Beige", "200 Nude", "220 Natural Beige", "330 Natural Tan"]
+      },
+      {
+        brand: "Wardah",
+        name: "Colorfit Matte Foundation",
+        category: "Foundation",
+        price: "32.00",
+        level: "Drugstore",
+        skinType: ["Normal", "Combination", "Oily"],
+        coverage: "Medium Coverage",
+        image: "./wardahfd.png",
+        keyIngredients: ["SkinMatch Technology: Adapts to natural skin tone.", "Cica Extract: Reduces redness."],
+        shades: ["11C Pink Ivory", "22N Light Ivory", "32N Neutral Beige", "43W Golden Sand"]
+      },
+
+      // --- High-End ---
+      {
+        brand: "Estée Lauder",
+        name: "Double Wear Stay-in-Place Makeup",
+        category: "Foundation",
+        price: "245.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./estelauderfd.png",
+        keyIngredients: ["Tocopheryl Acetate: Antioxidant protection.", "Oil-free polymer blend: 24h transfer-proof."],
+        shades: ["1W2 Sand", "2N1 Desert Beige", "3W1 Tawny", "4N1 Shell Beige"]
+      },
+      {
+        brand: "NARS",
+        name: "Light Reflecting Foundation",
+        category: "Foundation",
+        price: "240.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Medium Coverage",
+        image: "./narsfd.png",
+        keyIngredients: ["Biomimetic Oat: Visibly calms redness.", "Japanese Cacao: Protects against blue light."],
+        shades: ["Mont Blanc", "Deauville", "Punjab", "Barcelona"]
+      },
+      {
+        brand: "Fenty Beauty",
+        name: "Pro Filt'r Soft Matte Longwear Foundation",
+        category: "Foundation",
+        price: "210.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./fentyfd.png",
+        keyIngredients: ["Climate-adaptive tech: Sweat-resistant.", "Glycerin: Prevents drying out."],
+        shades: ["150 Light Neutral", "210 Medium Warm", "290 Medium Olive", "330 Deep Warm"]
+      },
+      {
+        brand: "MAC",
+        name: "Studio Fix Fluid SPF 15",
+        category: "Foundation",
+        price: "205.00",
+        level: "High-End",
+        skinType: ["Combination", "Oily", "Normal"],
+        coverage: "Full Coverage",
+        image: "./macfd.png",
+        keyIngredients: ["Silica: Reduces excess shine.", "Vitamin E: Environmental protection."],
+        shades: ["NC15", "NC20", "NC25", "NC35", "NC42"]
+      },
+      {
+        brand: "Lancôme",
+        name: "Teint Idole Ultra Wear Foundation",
+        category: "Foundation",
+        price: "250.00",
+        level: "High-End",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "Full Coverage",
+        image: "./lancomefd.png",
+        keyIngredients: ["Hyaluronic Acid: Smooth, hydrated texture.", "Moringa Extract: Anti-pollution shield."],
+        shades: ["105W", "220C", "325W", "400W"]
+      },
+
+      // =========================================================================
+      // 2. CONCEALER (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "SimplySiti",
+        name: "Fresh Color FixMe Concealer",
+        category: "Concealer",
+        price: "31.92",
+        level: "Local",
+        skinType: ["All Skin Types", "Combination", "Oily"],
+        coverage: "Medium to Full Coverage",
+        image: "./simplysiticonc.png",
+        keyIngredients: ["Vitamin E: Helps provide moisture and comfort to the skin.","Glycerin: Helps maintain skin hydration."],
+        shades: ["Light Beige - FCF01","Natural Beige - FCF02","Deep Beige - FCF03"]
+      },
+      {
+        brand: "Alha Alfa",
+        name: "Corrector & Concealer",
+        category: "Concealer",
+        price: "45.00",
+        level: "Local",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./AAconc.png",
+        keyIngredients: ["Titanium Dioxide: Protects under-eye skin.", "Bee Wax: High adhesion formula."],
+        shades: ["Light", "Medium", "Dark"]
+      },
+      {
+        brand: "Wawa Cosmetics",
+        name: "Wawa Airbrush Concealer",
+        category: "Concealer",
+        price: "29.00",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "Buildable Coverage",
+        image: "./wawaconc.png",
+        keyIngredients: ["Vitamin E: Moisturizes skin and provides antioxidant protection.","Argan Oil: Nourishes and softens skin for a smooth, non-cakey finish."],
+        shades: ["Light", "Natural", "Medium"]
+      },
+      {
+        brand: "Sobella",
+        name: "Blanket Beauty Concealer",
+        category: "Concealer",
+        price: "36.00",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "Full Coverage",
+        image: "./sobellaconc.png",
+        keyIngredients: [" Green Tea Extract: Soothes redness & inflammation instantly.", "Centella Asiatica Extract (Cica): Calm irritated skin."],
+        shades: ["01 Vanilla", "02 Buttermilk", "03 Cookie Cream", "04 Custard","05 Golden Maple"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Maybelline",
+        name: "Fit Me Concealer",
+        category: "Concealer",
+        price: "29.90",
+        level: "Drugstore",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "Medium Coverage",
+        image: "./maybellineconc.png",
+        keyIngredients: ["Glycerin: Non-comedogenic moisture.", "Titanium Dioxide: Brightens tone."],
+        shades: ["10 Light", "15 Fair", "20 Sand", "25 Medium"]
+      },
+      {
+        brand: "Maybelline",
+        name: "Instant Age Rewind Eraser Concealer",
+        category: "Concealer",
+        price: "39.90",
+        level: "Drugstore", 
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Medium to Full Coverage",
+        image: "./maybellineageconc.png",
+        keyIngredients: ["Goji Berry: Antioxidant rich.", "Haloxyl: Reduces dark circles."],
+        shades: ["110 Fair", "120 Light", "130 Medium", "140 Honey"]
+      },
+      {
+        brand: "L'Oréal",
+        name: "Infallible More Than Concealer",
+        category: "Concealer",
+        price: "55.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./lorealconc.png",
+        keyIngredients: ["Elastic stretch formula: Matte crease-resistant finish."],
+        shades: ["305 Ivory", "308 Vanilla", "312 Amber"]
+      },
+      {
+        brand: "Silkygirl",
+        name: "Fix It Liquid Concealer",
+        category: "Concealer",
+        price: "22.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Medium Coverage",
+        image: "./silkygirlconc.png",
+        keyIngredients: ["Cucumber Extract: Soothes puffed skin.", "Vitamin E: Moisturization."],
+        shades: ["01 Light", "02 Natural"]
+      },
+
+      // --- High-End ---
+      {
+        brand: "NARS",
+        name: "Radiant Creamy Concealer",
+        category: "Concealer",
+        price: "155.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Medium to Full Coverage",
+        image: "./narsconc.png",
+        keyIngredients: ["Grape Seed Extract: Firming and hydration.", "Vitamin E: Moisture barrier."],
+        shades: ["Chantilly", "Vanilla", "Custard", "Ginger", "Macadamia"]
+      },
+      {
+        brand: "Tarte",
+        name: "Shape Tape Contour Concealer",
+        category: "Concealer",
+        price: "145.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./tarteconc.png",
+        keyIngredients: ["Shea Butter: Retains skin elasticity.", "Mango Seed Butter: Nourishes skin."],
+        shades: ["12N Fair Neutral", "20N Light Neutral", "29N Light-Medium", "35N Medium"]
+      },
+      {
+        brand: "Fenty Beauty",
+        name: "Pro Filt'r Instant Retouch Concealer",
+        category: "Concealer",
+        price: "135.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./fentybeautyconc.png",
+        keyIngredients: ["Soft Matte Complex: Crease-proof performance."],
+        shades: ["120", "185", "230", "300"]
+      },
+      {
+        brand: "Dior",
+        name: "Diorforever Skin Correct Concealer",
+        category: "Concealer",
+        price: "200.00",
+        level: "High-End",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "Full Coverage",
+        image: "./diorconc.png",
+        keyIngredients: ["Wild Pansy Extract: Hydrates under-eye area.", "Rose Extract: Smooths texture."],
+        shades: ["0N Neutral", "1N Neutral", "2N Neutral", "3N Neutral"]
+      },
+
+      // =========================================================================
+      // 3. LIPSTICK (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Nita Cosmetics",
+        name: "Matte Liquid Lipstick",
+        category: "Lipstick",
+        price: "29.00",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "High Pigment",
+        image: "./nitalips.png",
+        keyIngredients: ["Vitamin E: Softens dry lips.", "Shea Butter: Non-drying matte formula."],
+        shades: ["Kurma", "Chendol", "Ais Kacang"]
+      },
+      {
+        brand: "d'Alba",
+        name: "Velvet Lip Color", 
+        category: "Lipstick",
+        price: "39.00",
+        level: "Local",
+        skinType: ["Dry", "Normal"],
+        coverage: "Medium Coverage",
+        image: "./dalbalips.png",
+        keyIngredients: ["Sunflower Seed Oil: Nourishing lock.", "Glycerin: Smooth glide."],
+        shades: ["Rose Nude", "Coral Velvet"]
+      },
+      {
+        brand: "Maeez Cosmetics",
+        name: "Lip Matte Maeez",
+        category: "Lipstick",
+        price: "29.00",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "Full Coverage",
+        image: "./maeezlips.png",
+        keyIngredients: ["Argan Oil: Prevents lip peeling and keeps lips hydrated.","Vitamin E: Restores moisture and smoothes lip lines."],
+        shades: ["Nude Brown", "Sweet Peach", "Deep Berry"]
+},
+{
+        brand: "Sobella Cosmetics",
+        name: "Lipmatte Sobella",
+        category: "Lipstick",
+        price: "38.00",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "High Pigment",
+        image: "./sobellalips.png",
+        keyIngredients: ["Honey Extract: Deeply nourishes dry lips and seals in moisture.","Shea Butter: Softens texture for a comfortable, non-drying finish."],
+        shades: ["Teddy Bear", "Cranberry", "Rose Pink"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Wardah",
+        name: "Velvet Matte Lip Mousse",
+        category: "Lipstick",
+        price: "22.50",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "High Pigment",
+        image: "./wardahlips.png",
+        keyIngredients: ["Vitamin E: Soft velvet finish without dryness."],
+        shades: ["01 Brown Dreamer", "03 Gentle Rose", "08 Brown Creator"]
+      },
+      {
+        brand: "Maybelline",
+        name: "Superstay Matte Ink Liquid Lipstick",
+        category: "Lipstick",
+        price: "39.90",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "Full Coverage",
+        image: "./maybellinelips.png",
+        keyIngredients: ["Long-wear Polymers: 16h smudge-proof stay."],
+        shades: ["65 Seductress", "70 Amazonian", "80 Ruler", "135 Globetrotter"]
+      },
+      {
+        brand: "Silkygirl",
+        name: "Gen Matte Lip Cream",
+        category: "Lipstick",
+        price: "21.90",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "High Pigment",
+        image: "./silkygirllips.png",
+        keyIngredients: ["Aloe Vera Extract: Soothes lips."],
+        shades: ["01 Just Nude", "03 Rose Comfort"]
+      },
+      {
+        brand: "IN2IT",
+        name: "Liquid Matte Lip Cream",
+        category: "Lipstick",
+        price: "24.90",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "Full Coverage",
+        image: "./in2itlips.png",
+        keyIngredients: ["Jojoba Oil: Deep conditioning."],
+        shades: ["VM01 Revel", "VM04 Ritzy"]
+      },
+
+      // --- High-End ---
+      {
+        brand: "MAC",
+        name: "Matte Lipstick",
+        category: "Lipstick",
+        price: "109.00",
+        level: "High-End",
+        skinType: ["All Skin Types"],
+        coverage: "High Pigment",
+        image: "./maclips.png",
+        keyIngredients: ["Castor Seed Oil: Ensures vibrant color payoff."],
+        shades: ["Velvet Teddy", "Ruby Woo", "Chili", "Taupe"]
+      },
+      {
+        brand: "YSL Beauty",
+        name: "Rouge Pur Couture Velvet Cream",
+        category: "Lipstick",
+        price: "185.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Full Coverage",
+        image: "./ysl lips.png",
+        keyIngredients: ["Nourishing Cream Oil Complex: Ultra-luxurious comfort."],
+        shades: ["212 Alternative Plum", "216 Nude Emblem"]
+      },
+      {
+        brand: "Charlotte Tilbury",
+        name: "Matte Revolution Lipstick",
+        category: "Lipstick",
+        price: "170.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Medium to Full Coverage",
+        image: "./charlottetilburylips.png",
+        keyIngredients: ["Lipstick Tree Extract: Protects from UV damage.", "Orchid Extract: Smooths finish."],
+        shades: ["Pillow Talk", "Walk of No Shame", "Very Victoria"]
+      },
+      {
+        brand: "Rare Beauty",
+        name: "Kind Words Matte Lipstick",
+        category: "Lipstick",
+        price: "108.00",
+        level: "High-End",
+        skinType: ["All Skin Types"],
+        coverage: "Full Coverage",
+        image: "./rarebeautylips.png",
+        keyIngredients: ["Flexible pigment technology: Weightless cream feel."],
+        shades: ["Humble", "Creative", "Brave"]
+      },
+
+      // =========================================================================
+      // 4. BLUSH (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Syedewa",
+        name: "Liquid Velvet Blush",
+        category: "Blush",
+        price: "42.00",
+        level: "Local",
+        skinType: ["Dry", "Normal", "Combination"],
+        coverage: "Buildable Sheer",
+        image: "./placeholder.png",
+        keyIngredients: ["Glycerin: Seamless blending.", "Vitamin E: Moisturizes cheeks."],
+        shades: ["Peach Fizz", "Rose Glow"]
+      },
+      {
+        brand: "Alha Alfa",
+        name: "Cushion Blusher",
+        category: "Blush",
+        price: "49.90",
+        level: "Local",
+        skinType: ["Sensitive", "Dry", "Combination"],
+        coverage: "Medium Sheer",
+        image: "./placeholder.png",
+        keyIngredients: ["Squalane: Gives natural dewiness."],
+        shades: ["Pinkish", "Peach", "Mauve"]
+      },
+      {
+        brand: "Maaez",
+        name: "Cheeky Cream Blush",
+        category: "Blush",
+        price: "32.90",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "Medium Sheer",
+        image: "./placeholder.png",
+        keyIngredients: ["Jojoba Oil: Easy blendability."],
+        shades: ["Coral", "Dusty Rose"]
+      },
+      {
+        brand: "Cubre Mi",
+        name: "Glow Powder Blush",
+        category: "Blush",
+        price: "19.90",
+        level: "Local",
+        skinType: ["Oily", "Combination"],
+        coverage: "Medium Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Talc Free Mineral Powder: Non-clogging."],
+        shades: ["Sweet Pink", "Warm Terracotta"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Wardah",
+        name: "Colorfit Cream Blush",
+        category: "Blush",
+        price: "19.80",
+        level: "Drugstore",
+        skinType: ["Dry", "Normal", "Combination"],
+        coverage: "Buildable Sheer",
+        image: "./placeholder.png",
+        keyIngredients: ["Vitamin E: Smooth cream-to-powder finish."],
+        shades: ["01 Summer Peach", "02 Merry Mauve", "03 Sand Coral"]
+      },
+      {
+        brand: "Silkygirl",
+        name: "Cool Chic Blush Stick",
+        category: "Blush",
+        price: "23.90",
+        level: "Drugstore",
+        skinType: ["Dry", "Normal"],
+        coverage: "Medium Sheer",
+        image: "./placeholder.png",
+        keyIngredients: ["Aloe Vera: Cooling hydration effect."],
+        shades: ["01 Peach", "02 Pink"]
+      },
+      {
+        brand: "Maybelline",
+        name: "Fit Me Mono Blush",
+        category: "Blush",
+        price: "33.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Medium Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Silica: Long-lasting wear."],
+        shades: ["10 Hopeful", "20 Hopeful", "30 Fierce"]
+      },
+
+      {
+        brand: "IN2IT",
+        name: "Sheer Matte Blush",
+        category: "Blush",
+        price: "22.00",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Medium Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Vitamin E: Skin conditioning."],
+        shades: ["SBM01 Plum", "SBM02 Peach"]
+      },
+      // --- High-End ---
+      {
+        brand: "Rare Beauty",
+        name: "Soft Pinch Liquid Blush",
+        category: "Blush",
+        price: "118.00",
+        level: "High-End",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "Medium Sheer",
+        image: "./placeholder.png",
+        keyIngredients: ["Botanical Blend (Lotus, Gardenia, Water Lily): Soothes skin."],
+        shades: ["Joy", "Hope", "Happy", "Encourage"]
+      },
+      {
+        brand: "NARS",
+        name: "Powder Blush",
+        category: "Blush",
+        price: "165.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "High Pigment",
+        image: "./placeholder.png",
+        keyIngredients: ["Micronized Powder: Silky blending."],
+        shades: ["Orgasm", "Deep Throat", "Taj Mahal"]
+      },
+      {
+        brand: "Patrick Ta",
+        name: "Major Headlines Double-Take Crème & Powder Blush",
+        category: "Blush",
+        price: "190.00",
+        level: "High-End",
+        skinType: ["Combination", "Dry", "Normal"],
+        coverage: "Full Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Biomimetic Pigments: Ensures color purity."],
+        shades: ["She's That Girl", "Do We Know Her?"]
+      },
+      {
+        brand: "Dior",
+        name: "Backstage Rosy Glow Blush",
+        category: "Blush",
+        price: "210.00",
+        level: "High-End",
+        skinType: ["All Skin Types"],
+        coverage: "Buildable Sheer",
+        image: "./placeholder.png",
+        keyIngredients: ["Color Reviver Technology: Reacts to skin moisture level."],
+        shades: ["001 Pink", "004 Coral", "012 Rosewood"]
+      },
+
+      // =========================================================================
+      // 5. PRIMER (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Alha Alfa",
+        name: "Skin Booster Primer Serum",
+        category: "Primer",
+        price: "59.90",
+        level: "Local",
+        skinType: ["Dry", "Sensitive", "Normal"],
+        coverage: "Glow & Hydration",
+        image: "./placeholder.png",
+        keyIngredients: ["Titanium Dioxide: SPF protection.", "Collagen: Firming base."],
+        shades: ["Translucent Gold"]
+      },
+      {
+        brand: "Syedewa",
+        name: "Pore Blurring Primer",
+        category: "Primer",
+        price: "49.00",
+        level: "Local",
+        skinType: ["Oily", "Combination"],
+        coverage: "Pore Minimizing",
+        image: "./placeholder.png",
+        keyIngredients: ["Silicone Complex: Fills uneven pores smoothly."],
+        shades: ["Translucent"]
+      },
+      {
+        brand: "Maaez",
+        name: "Prep & Glow Primer Stick",
+        category: "Primer",
+        price: "34.90",
+        level: "Local",
+        skinType: ["Dry", "Combination"],
+        coverage: "Dewy Finish",
+        image: "./placeholder.png",
+        keyIngredients: ["Hyaluronic Acid: Instant moisture boost."],
+        shades: ["Clear Glow"]
+      },
+      {
+        brand: "Obsess Cosmetics",
+        name: "Hydra Shield Primer",
+        category: "Primer",
+        price: "42.00",
+        level: "Local",
+        skinType: ["Sensitive", "Dry"],
+        coverage: "Moisturizing Base",
+        image: "./placeholder.png",
+        keyIngredients: ["Centella Asiatica: Calms redness."],
+        shades: ["Clear"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Silkygirl",
+        name: "Instant Pore Fix Primer",
+        category: "Primer",
+        price: "23.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Matte Finish",
+        image: "./placeholder.png",
+        keyIngredients: ["Dimethicone: Smooths fine lines and pores."],
+        shades: ["Translucent"]
+      },
+      {
+        brand: "Maybelline",
+        name: "Fit Me Matte + Poreless Primer",
+        category: "Primer",
+        price: "39.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Pore Minimizing",
+        image: "./placeholder.png",
+        keyIngredients: ["Salicylic Acid: Oil regulation."],
+        shades: ["Translucent"]
+      },
+      {
+        brand: "Rimmel",
+        name: "Fix & Perfect Pro Primer",
+        category: "Primer",
+        price: "32.00",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "5-in-1 Base",
+        image: "./placeholder.png",
+        keyIngredients: ["Silica: Blurs skin tone errors."],
+        shades: ["White Neutral"]
+      },
+      {
+        brand: "Wardah",
+        name: "Colorfit Velvet Matte Primer",
+        category: "Primer",
+        price: "28.00",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Velvet Matte Finish",
+        image: "./placeholder.png",
+        keyIngredients: ["Pore-blurring powder: Oil control."],
+        shades: ["Clear"]
+      },
+
+      // --- High-End ---
+      {
+        brand: "Benefit",
+        name: "The POREfessional Face Primer",
+        category: "Primer",
+        price: "165.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Pore Minimizing",
+        image: "./placeholder.png",
+        keyIngredients: ["Vitamin E Derivative: Free radical protection."],
+        shades: ["Translucent"]
+      },
+      {
+        brand: "Milk Makeup",
+        name: "Hydro Grip Primer",
+        category: "Primer",
+        price: "185.00",
+        level: "High-End",
+        skinType: ["Dry", "Combination", "Normal", "Sensitive"],
+        coverage: "Makeup Gripping Hydration",
+        image: "./placeholder.png",
+        keyIngredients: ["Blue Agave Extract: Grips makeup 12h.", "Hyaluronic Acid: Deep hydration."],
+        shades: ["Clear Tint"]
+      },
+      {
+        brand: "Hourglass",
+        name: "Veil Mineral Primer",
+        category: "Primer",
+        price: "280.00",
+        level: "High-End",
+        skinType: ["Sensitive", "Oily", "Combination"],
+        coverage: "Redness Concealing Base",
+        image: "./placeholder.png",
+        keyIngredients: ["Titanium Dioxide: Mineral sun defense.", "Zinc Oxide: Soothes acne."],
+        shades: ["Translucent"]
+      },
+      {
+        brand: "Laura Mercier",
+        name: "Pure Canvas Primer Hydrating",
+        category: "Primer",
+        price: "190.00",
+        level: "High-End",
+        skinType: ["Dry", "Sensitive"],
+        coverage: "Moisture Lock",
+        image: "./placeholder.png",
+        keyIngredients: ["Olive Extract: Smooths skin.", "Marine Botanical Water: Replenishes hydration."],
+        shades: ["Clear Base"]
+      },
+
+      // =========================================================================
+      // 6. LOOSE POWDER (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Alha Alfa",
+        name: "Royal Powder Setting Powder",
+        category: "Loose Powder",
+        price: "55.00",
+        level: "Local",
+        skinType: ["Oily", "Combination"],
+        coverage: "Translucent Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Silica: Long-wear oil filter.", "Corn Starch: Smooth texture."],
+        shades: ["Translucent", "Translucent Pink"]
+      },
+      {
+        brand: "Maaez",
+        name: "Microfine Loose Powder",
+        category: "Loose Powder",
+        price: "39.90",
+        level: "Local",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Sheer Finish",
+        image: "./placeholder.png",
+        keyIngredients: ["Vitamin E: Non-drying setting finish."],
+        shades: ["Light", "Natural"]
+      },
+      {
+        brand: "Cubre Mi",
+        name: "Oil Control Loose Powder",
+        category: "Loose Powder",
+        price: "22.90",
+        level: "Local",
+        skinType: ["Oily"],
+        coverage: "Soft Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Mineral Powder: Absorbs sweat and oil."],
+        shades: ["Translucent"]
+      },
+      {
+        brand: "Syed Dewa",
+        name: "Bake & Set Powder",
+        category: "Loose Powder",
+        price: "48.00",
+        level: "Local",
+        skinType: ["Oily", "Combination"],
+        coverage: "High Blur",
+        image: "./placeholder.png",
+        keyIngredients: ["Micro-fine Talc: Zero photo flashback."],
+        shades: ["Banana", "Translucent"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Silkygirl",
+        name: "No Sebum Mineral Powder",
+        category: "Loose Powder",
+        price: "18.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Sheer Translucent",
+        image: "./placeholder.png",
+        keyIngredients: ["Mineral Powder: Absorbent oil sponge.", "Schizandra Extract: Skin protection."],
+        shades: ["Translucent", "Natural Light"]
+      },
+      {
+        brand: "Maybelline",
+        name: "Fit Me Loose Finishing Powder",
+        category: "Loose Powder",
+        price: "49.90",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "Medium Tinted",
+        image: "./placeholder.png",
+        keyIngredients: ["Mineral-based formula: Smooths skin texture."],
+        shades: ["05 Fair", "10 Fair Light", "15 Light", "20 Light Medium"]
+      },
+      {
+        brand: "Wardah",
+        name: "Everyday Shine Free Loose Powder",
+        category: "Loose Powder",
+        price: "17.50",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Sheer Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Oil Absorber Particles: Sebum reduction."],
+        shades: ["01 Light Beige", "02 Beige"]
+      },
+      {
+        brand: "Innisfree",
+        name: "No-Sebum Mineral Powder",
+        category: "Loose Powder",
+        price: "30.00",
+        level: "Drugstore",
+        skinType: ["Oily", "Sensitive"],
+        coverage: "Translucent Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Jeju Natural Minerals: Oil balancing.", "Mint Extract: Refreshing feel."],
+        shades: ["Clear Translucent"]
+      },
+
+      // --- High-End ---
+      {
+        brand: "Laura Mercier",
+        name: "Translucent Loose Setting Powder",
+        category: "Loose Powder",
+        price: "215.00",
+        level: "High-End",
+        skinType: ["All Skin Types"],
+        coverage: "Soft Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["French Cashmere Talc: Extremely fine texture."],
+        shades: ["Translucent", "Translucent Honey", "Translucent Medium Deep"]
+      },
+      {
+        brand: "Huda Beauty",
+        name: "Easy Bake Loose Baking Powder",
+        category: "Loose Powder",
+        price: "195.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Matte Setting",
+        image: "./placeholder.png",
+        keyIngredients: ["Ultra-refined Pigments: Luminosity control."],
+        shades: ["Pound Cake", "Banana Bread", "Blondie", "Cherry Blossom"]
+      },
+      {
+        brand: "Fenty Beauty",
+        name: "Pro Filt'r Instant Retouch Setting Powder",
+        category: "Loose Powder",
+        price: "170.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Blurring Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Super-fine silk powder: Non-flashback."],
+        shades: ["Butter", "Banana", "Cashew"]
+      },
+      {
+        brand: "Hourglass",
+        name: "Veil Translucent Setting Powder",
+        category: "Loose Powder",
+        price: "235.00",
+        level: "High-End",
+        skinType: ["Dry", "Sensitive", "Normal"],
+        coverage: "Soft Focus Glow",
+        image: "./placeholder.png",
+        keyIngredients: ["Diamond Powder: Soft-focus light reflection."],
+        shades: ["Translucent"]
+      },
+
+      // =========================================================================
+      // 7. COMPACT POWDER (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Maaez",
+        name: "Compact Powder Foundation",
+        category: "Compact Powder",
+        price: "49.90",
+        level: "Local",
+        skinType: ["Combination", "Oily"],
+        coverage: "Medium Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Vitamin E: Protects skin smoothness."],
+        shades: ["Light", "Medium", "Dark"]
+      },
+      {
+        brand: "Alha Alfa",
+        name: "Compact Powder Matte Finish",
+        category: "Compact Powder",
+        price: "59.90",
+        level: "Local",
+        skinType: ["Oily"],
+        coverage: "Full Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Zinc Oxide: SPF and soothing property."],
+        shades: ["Ivory", "Natural", "Deep"]
+      },
+      {
+        brand: "Cubre Mi",
+        name: "2-in-1 Compact Powder",
+        category: "Compact Powder",
+        price: "25.00",
+        level: "Local",
+        skinType: ["Combination", "Normal"],
+        coverage: "Medium Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Silica: Long-lasting shine control."],
+        shades: ["Fair", "Beige"]
+      },
+      {
+        brand: "Obsess Cosmetics",
+        name: "Velvet Pressed Powder",
+        category: "Compact Powder",
+        price: "39.00",
+        level: "Local",
+        skinType: ["Oily", "Combination"],
+        coverage: "Medium Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Argan Oil: Moisture balance."],
+        shades: ["Light", "Medium"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "IN2IT",
+        name: "Oil Control Compact Powder",
+        category: "Compact Powder",
+        price: "24.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Medium Finish",
+        image: "./placeholder.png",
+        keyIngredients: ["Squalane & Vitamin E: Protects and hydrates."],
+        shades: ["01 Soft Beige", "02 Warm Beige", "03 Harvest"]
+      },
+      {
+        brand: "Wardah",
+        name: "Colorfit Velvet Powder Foundation",
+        category: "Compact Powder",
+        price: "27.50",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Medium to Full Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Matte Micropowder: Up to 12h oil regulation."],
+        shades: ["22N Light Ivory", "23W Warm Ivory", "32N Neutral Beige"]
+      },
+      {
+        brand: "Maybelline",
+        name: "Fit Me Matte + Poreless Powder",
+        category: "Compact Powder",
+        price: "35.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Normal"],
+        coverage: "Medium Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Perlite Mineral: Oil absorbing formula."],
+        shades: ["110 Porcelain", "120 Classic Ivory", "220 Natural Beige"]
+      },
+      {
+        brand: "Silkygirl",
+        name: "Pore Suppression Pressed Powder",
+        category: "Compact Powder",
+        price: "21.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Sheer Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Wild Rose Berry Extract: Reduces pore appearance."],
+        shades: ["01 Light", "02 Natural"]
+      },
+
+      // --- High-End ---
+      {
+        brand: "MAC",
+        name: "Studio Fix Powder Plus Foundation",
+        category: "Compact Powder",
+        price: "185.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Silica: Long-wear matte texture."],
+        shades: ["NC20", "NC25", "NC30", "NC35", "NC40"]
+      },
+      {
+        brand: "Charlotte Tilbury",
+        name: "Airbrush Flawless Finish Powder",
+        category: "Compact Powder",
+        price: "220.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Medium Sheer",
+        image: "./placeholder.png",
+        keyIngredients: ["Rose Wax & Almond Oil: Intensely hydrates skin."],
+        shades: ["1 Fair", "2 Medium", "3 Tan"]
+      },
+      {
+        brand: "Fenty Beauty",
+        name: "Pro Filt'r Soft Matte Powder Foundation",
+        category: "Compact Powder",
+        price: "195.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Buildable Medium to Full",
+        image: "./placeholder.png",
+        keyIngredients: ["Blurring Complex: Sweat and humidity resistant."],
+        shades: ["180", "220", "300"]
+      },
+      {
+        brand: "NARS",
+        name: "Soft Velvet Pressed Powder",
+        category: "Compact Powder",
+        price: "175.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Sheer Natural",
+        image: "./placeholder.png",
+        keyIngredients: ["Hyaluronic Acid Technology: Keeps dry skin moist."],
+        shades: ["Eden", "Beach", "Mountain"]
+      },
+
+      // =========================================================================
+      // 8. CUSHION FOUNDATION (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Alha Alfa",
+        name: "Royal Glow Cushion",
+        category: "Cushion Foundation",
+        price: "69.90",
+        level: "Local",
+        skinType: ["Dry", "Normal"],
+        coverage: "Full Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Argan Oil: High glow nourishment."],
+        shades: ["Light", "Medium", "Dark"]
+      },
+      {
+        brand: "Maaez",
+        name: "Cushion Glow Serum",
+        category: "Cushion Foundation",
+        price: "49.90",
+        level: "Local",
+        skinType: ["Dry", "Sensitive"],
+        coverage: "Medium Sheer",
+        image: "./placeholder.png",
+        keyIngredients: ["Hyaluronic Acid: Moisture retention."],
+        shades: ["Snow", "Honey"]
+      },
+      {
+        brand: "Soella",
+        name: "Matte Cushion Perfect",
+        category: "Cushion Foundation",
+        price: "45.00",
+        level: "Local",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Tea Tree Extract: Anti-acne benefit."],
+        shades: ["01 Light", "02 Natural"]
+      },
+      {
+        brand: "Syed Dewa",
+        name: "Satin Finish Cushion",
+        category: "Cushion Foundation",
+        price: "55.00",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "Medium Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Vitamin C: Radiant skin effect."],
+        shades: ["Ivory", "Beige"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Skintific",
+        name: "Cover All Perfect Cushion",
+        category: "Cushion Foundation",
+        price: "59.00",
+        level: "Drugstore",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "High Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["5X Ceramides: Barrier repair.", "Centella Asiatica: Soothes inflammation."],
+        shades: ["01 Vanilla", "02 Ivory", "03 Petal", "04 Beige"]
+      },
+      {
+        brand: "Wardah",
+        name: "Exclusive Flawless Cover Cushion",
+        category: "Cushion Foundation",
+        price: "48.00",
+        level: "Drugstore",
+        skinType: ["Dry", "Combination", "Normal"],
+        coverage: "Full Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Macadamia Oil: Radiant hydration."],
+        shades: ["01 Light Beige", "02 Honey Beige", "03 Sandy Beige"]
+      },
+      {
+        brand: "CLIO",
+        name: "Kill Cover High Glow Cushion",
+        category: "Cushion Foundation",
+        price: "99.00",
+        level: "Drugstore",
+        skinType: ["Dry", "Normal"],
+        coverage: "High Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Hyaluronic Acid Complex: Intense dewiness."],
+        shades: ["2 Lingerie", "3 Linen", "4 Ginger"]
+      },
+      {
+        brand: "Maybelline",
+        name: "Superstay Mesh Cushion",
+        category: "Cushion Foundation",
+        price: "79.00",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["High adhesion pigments: 24h wear."],
+        shades: ["120", "220"]
+      },
+      // --- High-End ---
+      {
+        brand: "Laneige",
+        name: "Neo Cushion Matte",
+        category: "Cushion Foundation",
+        price: "170.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Humid Defence: Sweat and oil control.", "Panthenol: Skin calming."],
+        shades: ["21N Beige", "23N Sand", "25N Tan"]
+      },
+      {
+        brand: "YSL Beauty",
+        name: "Le Cushion Encre De Peau",
+        category: "Cushion Foundation",
+        price: "290.00",
+        level: "High-End",
+        skinType: ["Combination", "Normal", "Dry"],
+        coverage: "Medium to Full Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Jasmine Petal Extract: Prevents oxidation."],
+        shades: ["B10", "B20", "B30"]
+      },
+      {
+        brand: "Dior",
+        name: "Diorforever Skin Glow Cushion",
+        category: "Cushion Foundation",
+        price: "310.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Medium Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Pansy Extract: Long-lasting hydration."],
+        shades: ["0N", "1N", "2N"]
+      },
+      {
+        brand: "Jung Saem Mool",
+        name: "Essential Skin Nuder Cushion",
+        category: "Cushion Foundation",
+        price: "165.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal"],
+        coverage: "Medium Natural Glow",
+        image: "./placeholder.png",
+        keyIngredients: ["Hue Balancing Powder: Natural skin fit."],
+        shades: ["Fair-Light", "N-Light", "Medium"]
+      },
+      // =========================================================================
+      // 9. BRONZER (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Syed Dewa",
+        name: "Warm Velvet Bronzer Stick",
+        category: "Bronzer",
+        price: "42.00",
+        level: "Local",
+        skinType: ["Dry", "Normal", "Combination"],
+        coverage: "Buildable Warmth",
+        image: "./placeholder.png",
+        keyIngredients: ["Vitamin E: Smooth blendability."],
+        shades: ["Warm Sunkissed"]
+      },
+      {
+        brand: "Alha Alfa",
+        name: "Sunkissed Powder Bronzer",
+        category: "Bronzer",
+        price: "49.90",
+        level: "Local",
+        skinType: ["Oily", "Combination"],
+        coverage: "Medium Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Micronized Mica: Natural warmth."],
+        shades: ["Bronze Glow"]
+      },
+      {
+        brand: "Maaez",
+        name: "Sculpt & Glow Bronzer",
+        category: "Bronzer",
+        price: "35.90",
+        level: "Local",
+        skinType: ["Combination", "Dry"],
+        coverage: "Medium",
+        image: "./placeholder.png",
+        keyIngredients: ["Glycerin: Soft glide."],
+        shades: ["Honey Bronze"]
+      },
+      {
+        brand: "Soella",
+        name: "Matte Bronzing Powder",
+        category: "Bronzer",
+        price: "28.00",
+        level: "Local",
+        skinType: ["Oily"],
+        coverage: "Full Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Silica: Sebum absorbing."],
+        shades: ["Warm Amber"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Rimmel",
+        name: "Natural Bronzer Waterproof Powder",
+        category: "Bronzer",
+        price: "29.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Medium Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Waterproof Minerals: Sweat resistant."],
+        shades: ["021 Sun Light", "022 Sun Bronze"]
+      },
+      {
+        brand: "Catrice",
+        name: "Sun Lover Glow Bronzing Powder",
+        category: "Bronzer",
+        price: "27.90",
+        level: "Drugstore",
+        skinType: ["Dry", "Normal"],
+        coverage: "Radiant Warmth",
+        image: "./placeholder.png",
+        keyIngredients: ["Light-reflecting pigments."],
+        shades: ["010 Sun-Kissed Bronze"]
+      },
+      {
+        brand: "Silkygirl",
+        name: "Shine Free Bronzing Powder",
+        category: "Bronzer",
+        price: "22.50",
+        level: "Drugstore",
+        skinType: ["Oily"],
+        coverage: "Medium Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Oil Control Powder."],
+        shades: ["Natural Tan"]
+      },
+      {
+        brand: "Maybelline",
+        name: "City Bronze Powder",
+        category: "Bronzer",
+        price: "39.90",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "Buildable Natural",
+        image: "./placeholder.png",
+        keyIngredients: ["Micro-milled Cocoa Butter: Soft scent and feel."],
+        shades: ["100 Light", "200 Medium"]
+      },
+
+      // --- High-End ---
+      {
+        brand: "NARS",
+        name: "Laguna Bronzing Powder",
+        category: "Bronzer",
+        price: "180.00",
+        level: "High-End",
+        skinType: ["All Skin Types"],
+        coverage: "Medium Sheer Warmth",
+        image: "./placeholder.png",
+        keyIngredients: ["Botanical Oils: Non-drying formula."],
+        shades: ["Laguna 02", "Laguna 04"]
+      },
+      {
+        brand: "Charlotte Tilbury",
+        name: "Airbrush Bronzer",
+        category: "Bronzer",
+        price: "270.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Soft Focus Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Hyaluronic Acid: Hydrating blur effect."],
+        shades: ["1 Fair", "2 Medium", "3 Tan"]
+      },
+      {
+        brand: "Fenty Beauty",
+        name: "Sun Stalk'r Instant Warmth Bronzer",
+        category: "Bronzer",
+        price: "170.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Buildable Matte",
+        image: "./placeholder.png",
+        keyIngredients: ["Mango & Papaya Fruit Extracts: Skin smoothing."],
+        shades: ["Inda Sun", "Private Island", "Caramel Cutie"]
+      },
+      {
+        brand: "Chanel",
+        name: "Les Beiges Cream Bronzer",
+        category: "Bronzer",
+        price: "260.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Velvety Cream-Gel Finish",
+        image: "./placeholder.png",
+        keyIngredients: ["Silica & Soft Focus Powders: Smooth blending."],
+        shades: ["Soleil Tan Bronze", "Soleil Tan Deep"]
+      },
+
+      // =========================================================================
+      // 10. CONTOUR (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Alha Alfa",
+        name: "Conceal & Contour Cream Stick",
+        category: "Contour",
+        price: "49.90",
+        level: "Local",
+        skinType: ["Dry", "Combination", "Normal"],
+        coverage: "Full Sculpting",
+        image: "./placeholder.png",
+        keyIngredients: ["Vitamin E: Easy blending."],
+        shades: ["Deep Contour"]
+      },
+      {
+        brand: "Syed Dewa",
+        name: "Sculpting Shadow Stick",
+        category: "Contour",
+        price: "45.00",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "Medium Cool Tone",
+        image: "./placeholder.png",
+        keyIngredients: ["Squalane: Glides over pores."],
+        shades: ["Cool Shadow"]
+      },
+      {
+        brand: "Maaez",
+        name: "Face Sculptor Stick",
+        category: "Contour",
+        price: "32.90",
+        level: "Local",
+        skinType: ["Combination", "Dry"],
+        coverage: "Buildable",
+        image: "./placeholder.png",
+        keyIngredients: ["Jojoba Oil: Creamy application."],
+        shades: ["Medium Dark"]
+      },
+      {
+        brand: "Obsess Cosmetics",
+        name: "Slimming Contour Duo",
+        category: "Contour",
+        price: "39.00",
+        level: "Local",
+        skinType: ["Sensitive", "Normal"],
+        coverage: "Medium Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Aloe Vera: Calming application."],
+        shades: ["Neutral Tan"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Maybelline",
+        name: "City Kits Contour Palette",
+        category: "Contour",
+        price: "45.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Buildable Powder",
+        image: "./placeholder.png",
+        keyIngredients: ["Silica: Matte shadow simulation."],
+        shades: ["Cool Contour Duo"]
+      },
+      {
+        brand: "NYX",
+        name: "Wonder Stick Highlight & Contour",
+        category: "Contour",
+        price: "55.00",
+        level: "Drugstore",
+        skinType: ["Dry", "Normal", "Combination"],
+        coverage: "Creamy Full Finish",
+        image: "./placeholder.png",
+        keyIngredients: ["Candellila Wax: Smooth creamy texture."],
+        shades: ["Universal Light", "Medium"]
+      },
+      {
+        brand: "Catrice",
+        name: "Triangle Artist Contour Stick",
+        category: "Contour",
+        price: "28.00",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "Medium Precision",
+        image: "./placeholder.png",
+        keyIngredients: ["Vitamin E."],
+        shades: ["010 Ashy Brown"]
+      },
+      {
+        brand: "Silkygirl",
+        name: "Duo Contour Stick",
+        category: "Contour",
+        price: "25.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Medium",
+        image: "./placeholder.png",
+        keyIngredients: ["Oil Control Wax Blend."],
+        shades: ["01 Light", "02 Medium"]
+      },
+
+      // --- High-End ---
+      {
+        brand: "Fenty Beauty",
+        name: "Match Stix Contour Skinstick",
+        category: "Contour",
+        price: "145.00",
+        level: "High-End",
+        skinType: ["All Skin Types"],
+        coverage: "Matte Sculpting",
+        image: "./placeholder.png",
+        keyIngredients: ["Lightweight Wax Blend: Effortless blending."],
+        shades: ["Amber (Cool Tone)", "Mocha", "Truffle"]
+      },
+      {
+        brand: "Westman Atelier",
+        name: "Face Trace Cream Contour Stick",
+        category: "Contour",
+        price: "240.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Medium Dewy Sculpt",
+        image: "./placeholder.png",
+        keyIngredients: ["Jojoba Oil: Deep hydration.", "Berryflux Vita: Youthful booster."],
+        shades: ["Biscuit", "Truffle"]
+      },
+      {
+        brand: "Charlotte Tilbury",
+        name: "Hollywood Contour Wand",
+        category: "Contour",
+        price: "185.00",
+        level: "High-End",
+        skinType: ["Dry", "Combination", "Normal"],
+        coverage: "Sheer Liquid Sculpt",
+        image: "./placeholder.png",
+        keyIngredients: ["Treated Pigments: Uniform color diffusion."],
+        shades: ["Fair/Medium", "Medium/Dark"]
+      },
+      {
+        brand: "Anastasia Beverly Hills",
+        name: "Contour Powder Kit",
+        category: "Contour",
+        price: "220.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Full Precision Powder",
+        image: "./placeholder.png",
+        keyIngredients: ["Micronized Minerals: Ultra-matte finish."],
+        shades: ["Light to Medium Palette"]
+      },
+
+      // =========================================================================
+      // 11. HIGHLIGHTER (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Alha Alfa",
+        name: "Glow Beam Liquid Highlighter",
+        category: "Highlighter",
+        price: "45.00",
+        level: "Local",
+        skinType: ["Dry", "Normal", "Combination"],
+        coverage: "Intense Liquid Glow",
+        image: "./placeholder.png",
+        keyIngredients: ["Squalane: Dewy reflective sheen."],
+        shades: ["Champagne Gold", "Rose Gold"]
+      },
+      {
+        brand: "Maaez",
+        name: "Shimmering Glow Powder",
+        category: "Highlighter",
+        price: "32.90",
+        level: "Local",
+        skinType: ["Oily", "Combination"],
+        coverage: "Blinding Glow",
+        image: "./placeholder.png",
+        keyIngredients: ["Pearl Mica Particles."],
+        shades: ["Golden Hour"]
+      },
+      {
+        brand: "Syed Dewa",
+        name: "Glass Skin Highlighter Stick",
+        category: "Highlighter",
+        price: "42.00",
+        level: "Local",
+        skinType: ["Dry", "Sensitive"],
+        coverage: "Wet Look Glow",
+        image: "./placeholder.png",
+        keyIngredients: ["Vitamin E & Jojoba Oil."],
+        shades: ["Clear Dew"]
+      },
+      {
+        brand: "Obsess Cosmetics",
+        name: "Glow Drop Fluid",
+        category: "Highlighter",
+        price: "38.00",
+        level: "Local",
+        skinType: ["Dry", "Normal"],
+        coverage: "Sheer Radiant",
+        image: "./placeholder.png",
+        keyIngredients: ["Hyaluronic Serum Base."],
+        shades: ["Bronze Glow"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Catrice",
+        name: "More Than Glow Highlighter",
+        category: "Highlighter",
+        price: "21.90",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "Intense Glow",
+        image: "./placeholder.png",
+        keyIngredients: ["Ultra-fine Metallic Pearls."],
+        shades: ["010 Ultimate Platinum Glaze", "020 Supreme Rose Beam"]
+      },
+      {
+        brand: "Maybelline",
+        name: "Master Chrome Metallic Highlighter",
+        category: "Highlighter",
+        price: "45.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Metallic Reflective",
+        image: "./placeholder.png",
+        keyIngredients: ["Pearl Pigments: High sheen shine."],
+        shades: ["100 Molten Gold", "050 Molten Rose Gold"]
+      },
+      {
+        brand: "Silkygirl",
+        name: "Glow Powder Highlighter",
+        category: "Highlighter",
+        price: "23.90",
+        level: "Drugstore",
+        skinType: ["Normal", "Combination"],
+        coverage: "Natural Sheen",
+        image: "./placeholder.png",
+        keyIngredients: ["Synthetic Fluorphlogopite: Smooth shine."],
+        shades: ["01 Gold", "02 Rose"]
+      },
+      {
+        brand: "Revlon",
+        name: "Skinlights Prismatic Highlighter",
+        category: "Highlighter",
+        price: "58.00",
+        level: "Drugstore",
+        skinType: ["Dry", "Normal"],
+        coverage: "Crystalline Glow",
+        image: "./placeholder.png",
+        keyIngredients: ["Silky Crystal Pigments."],
+        shades: ["201 Daybreak Glimmer"]
+      },
+
+      // --- High-End ---
+      {
+        brand: "Rare Beauty",
+        name: "Positive Light Liquid Luminizer",
+        category: "Highlighter",
+        price: "125.00",
+        level: "High-End",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "Second-Skin Glow",
+        image: "./placeholder.png",
+        keyIngredients: ["Botanical Blend: Soothes and hydrates."],
+        shades: ["Enlighten", "Mesmerize", "Outshine"]
+      },
+      {
+        brand: "Fenty Beauty",
+        name: "Killawatt Freestyle Highlighter",
+        category: "Highlighter",
+        price: "185.00",
+        level: "High-End",
+        skinType: ["All Skin Types"],
+        coverage: "Weightless Hybrid Shine",
+        image: "./placeholder.png",
+        keyIngredients: ["Cream-powder hybrid formula."],
+        shades: ["Trophy Wife", "Trophy Wife", "Mean Money/Hu$tla Baby"]
+      },
+      {
+        brand: "Charlotte Tilbury",
+        name: "Beauty Light Wand",
+        category: "Highlighter",
+        price: "185.00",
+        level: "High-End",
+        skinType: ["Dry", "Normal", "Sensitive"],
+        coverage: "Soft Focus High Sheen",
+        image: "./placeholder.png",
+        keyIngredients: ["Oleogel: Gives high gloss effect without glitter."],
+        shades: ["Spotlight", "Pinkgasm"]
+      },
+      {
+        brand: "Dior",
+        name: "Forever Couture Luminizer",
+        category: "Highlighter",
+        price: "260.00",
+        level: "High-End",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "Multi-Dimensional Iridescent",
+        image: "./placeholder.png",
+        keyIngredients: ["Wild Pansy Extract: Hydrates skin."],
+        shades: ["01 Nude Glow", "02 Pink Glow"]
+      },
+
+      // =========================================================================
+      // 12. SETTING SPRAY (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Alha Alfa",
+        name: "Real Glow Setting Spray",
+        category: "Setting Spray",
+        price: "49.90",
+        level: "Local",
+        skinType: ["Dry", "Normal"],
+        coverage: "Dewy Shield",
+        image: "./placeholder.png",
+        keyIngredients: ["Green Tea Extract: Antioxidant protection."],
+        shades: ["Clear Glow"]
+      },
+      {
+        brand: "Maaez",
+        name: "Makeup Fixer Spray",
+        category: "Setting Spray",
+        price: "35.90",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "Long-Lasting Seal",
+        image: "./placeholder.png",
+        keyIngredients: ["Niacinamide: Brightens and sets makeup."],
+        shades: ["Clear"]
+      },
+      {
+        brand: "Obsess Cosmetics",
+        name: "Hydra Lock Setting Spray",
+        category: "Setting Spray",
+        price: "39.00",
+        level: "Local",
+        skinType: ["Sensitive", "Dry"],
+        coverage: "Hydrating Seal",
+        image: "./placeholder.png",
+        keyIngredients: ["Chamomile Water: Soothes skin barrier."],
+        shades: ["Clear"]
+      },
+      {
+        brand: "Cubre Mi",
+        name: "Matte Fix Mist",
+        category: "Setting Spray",
+        price: "22.00",
+        level: "Local",
+        skinType: ["Oily"],
+        coverage: "Oil Control Seal",
+        image: "./placeholder.png",
+        keyIngredients: ["Witch Hazel Extract: Tightens pores."],
+        shades: ["Clear"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Silkygirl",
+        name: "Makeup Setting Spray Matte",
+        category: "Setting Spray",
+        price: "24.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Matte Shield",
+        image: "./placeholder.png",
+        keyIngredients: ["Chamomile Extract: Anti-inflammatory."],
+        shades: ["Clear"]
+      },
+      {
+        brand: "Maybelline",
+        name: "Fit Me Lasting Fix Setting Spray",
+        category: "Setting Spray",
+        price: "42.90",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "16H Matte Control",
+        image: "./placeholder.png",
+        keyIngredients: ["Matte polymers: Controls oil production."],
+        shades: ["Clear"]
+      },
+      {
+        brand: "NYX",
+        name: "Matte Finish Setting Spray",
+        category: "Setting Spray",
+        price: "48.00",
+        level: "Drugstore",
+        skinType: ["Oily", "Combination"],
+        coverage: "Matte Seal",
+        image: "./placeholder.png",
+        keyIngredients: ["Niacinamide: Controls sebum."],
+        shades: ["Clear Matte"]
+      },
+      {
+        brand: "Wardah",
+        name: "Lightening Matte Setting Spray",
+        category: "Setting Spray",
+        price: "29.00",
+        level: "Drugstore",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "Non-Alcoholic Seal",
+        image: "./placeholder.png",
+        keyIngredients: ["Advanced Niacinamide: Protects against blue light."],
+        shades: ["Clear"]
+      },
+
+      // --- High-End ---
+      {
+        brand: "Urban Decay",
+        name: "All Nighter Long-Lasting Setting Spray",
+        category: "Setting Spray",
+        price: "150.00",
+        level: "High-End",
+        skinType: ["All Skin Types"],
+        coverage: "16-Hour Temperature Control Seal",
+        image: "./placeholder.png",
+        keyIngredients: ["Temperature Control Tech: Lowers makeup temp."],
+        shades: ["Clear"]
+      },
+      {
+        brand: "MAC",
+        name: "Prep + Prime Fix+",
+        category: "Setting Spray",
+        price: "115.00",
+        level: "High-End",
+        skinType: ["Dry", "Sensitive", "Normal"],
+        coverage: "Soothing Hydration Spray",
+        image: "./placeholder.png",
+        keyIngredients: ["Green Tea, Chamomile & Cucumber: Instant soothing."],
+        shades: ["Clear"]
+      },
+      {
+        brand: "Charlotte Tilbury",
+        name: "Airbrush Flawless Setting Spray",
+        category: "Setting Spray",
+        price: "170.00",
+        level: "High-End",
+        skinType: ["All Skin Types"],
+        coverage: "Weightless Pore Blurring Seal",
+        image: "./placeholder.png",
+        keyIngredients: ["Flawless Film Formers: Waterproof lock.", "Aloe Vera: Soothes skin."],
+        shades: ["Clear"]
+      },
+      {
+        brand: "Benefit",
+        name: "The POREfessional Super Setter Spray",
+        category: "Setting Spray",
+        price: "160.00",
+        level: "High-End",
+        skinType: ["Oily", "Combination"],
+        coverage: "Pore Blurring Micro-fine Mist",
+        image: "./placeholder.png",
+        keyIngredients: ["Pore-blurring powders: Absorbs surface shine."],
+        shades: ["Clear"]
+      },
+
+      // =========================================================================
+      // 13. EYESHADOW (15 Products: 5 Local, 5 Drugstore, 5 High-End)
+      // =========================================================================
+      // --- Local ---
+      {
+        brand: "Alha Alfa",
+        name: "Eyeshadow Quad Palette",
+        category: "Eyeshadow",
+        price: "49.90",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "Full Color Payoff",
+        image: "./placeholder.png",
+        keyIngredients: ["Refined Mineral Pigments."],
+        shades: ["Nude Classic", "Glam Pink"]
+      },
+      {
+        brand: "Syed Dewa",
+        name: "Velvet Eyeshadow Single",
+        category: "Eyeshadow",
+        price: "29.00",
+        level: "Local",
+        skinType: ["Sensitive", "Normal"],
+        coverage: "Medium Buildable",
+        image: "./placeholder.png",
+        keyIngredients: ["Squalane: Soft cream-to-powder finish."],
+        shades: ["Champagne Shimmer", "Matte Taupe"]
+      },
+      {
+        brand: "Maaez",
+        name: "Warm Nude Eyeshadow Palette",
+        category: "Eyeshadow",
+        price: "45.00",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "High Pigment",
+        image: "./placeholder.png",
+        keyIngredients: ["Jojoba Oil: Easy blendability."],
+        shades: ["Sunset Orange", "Earthy Brown"]
+      },
+      {
+        brand: "Obsess Cosmetics",
+        name: "Pocket Eyeshadow Palette",
+        category: "Eyeshadow",
+        price: "35.00",
+        level: "Local",
+        skinType: ["All Skin Types"],
+        coverage: "Buildable Sheer",
+        image: "./placeholder.png",
+        keyIngredients: ["Aloe Vera Extract: Soothes eye area."],
+        shades: ["Daily Rose", "Bronze Glow"]
+      },
+
+      // --- Drugstore ---
+      {
+        brand: "Maybelline",
+        name: "The Nudes Eyeshadow Palette",
+        category: "Eyeshadow",
+        price: "65.90",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "Medium to High Pigment",
+        image: "./placeholder.png",
+        keyIngredients: ["Micro-fine Talc: Long-wearing crease-resistant blend."],
+        shades: ["12 Shade Neutral Palette"]
+      },
+      {
+        brand: "Silkygirl",
+        name: "TRUewear Eyeshadow Quad",
+        category: "Eyeshadow",
+        price: "25.90",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "Medium Coverage",
+        image: "./placeholder.png",
+        keyIngredients: ["Silica: Crease-free finish."],
+        shades: ["01 Nude", "02 Bronze"]
+      },
+      {
+        brand: "Wardah",
+        name: "Colorfit Quad Eyeshadow",
+        category: "Eyeshadow",
+        price: "24.50",
+        level: "Drugstore",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "High Pigment",
+        image: "./placeholder.png",
+        keyIngredients: ["Micronized Pearl Pigments."],
+        shades: ["01 Brunette Dawn", "02 Rose Aurora"]
+      },
+      {
+        brand: "Rimmel",
+        name: "Magnif'Eyes Eyeshadow Palette",
+        category: "Eyeshadow",
+        price: "49.90",
+        level: "Drugstore",
+        skinType: ["All Skin Types"],
+        coverage: "High Intensity",
+        image: "./placeholder.png",
+        keyIngredients: ["Ultra-blendable formula."],
+        shades: ["Nude Edition", "Spice Edition"]
+      },
+
+      // --- High-End ---
+      {
+        brand: "Charlotte Tilbury",
+        name: "Luxury Palette",
+        category: "Eyeshadow",
+        price: "250.00",
+        level: "High-End",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "Buildable Glamour",
+        image: "./placeholder.png",
+        keyIngredients: ["Multi-Reflective Pearls: Soft-focus crystalline glow."],
+        shades: ["Pillow Talk", "Walk of No Shame"]
+      },
+      {
+        brand: "Tarte",
+        name: "Tartelette In Bloom Clay Palette",
+        category: "Eyeshadow",
+        price: "215.00",
+        level: "High-End",
+        skinType: ["All Skin Types"],
+        coverage: "Full Coverage Matte & Shimmer",
+        image: "./placeholder.png",
+        keyIngredients: ["Amazonian Clay: Long-wear oil-free performance."],
+        shades: ["12 Matte & Shimmer Neutrals"]
+      },
+      {
+        brand: "Dior",
+        name: "5 Couleurs Couture Eyeshadow Palette",
+        category: "Eyeshadow",
+        price: "320.00",
+        level: "High-End",
+        skinType: ["All Skin Types", "Sensitive"],
+        coverage: "Intense Couture Pigment",
+        image: "./placeholder.png",
+        keyIngredients: ["Aloe Vera & Pine Oil: Smooths eyelids."],
+        shades: ["Nude Dress", "Soft Cashmere"]
+      },
+      {
+        brand: "Huda Beauty",
+        name: "Nude Obsessions Eyeshadow Palette",
+        category: "Eyeshadow",
+        price: "155.00",
+        level: "High-End",
+        skinType: ["All Skin Types"],
+        coverage: "High Pigment Matte & Duo-Chrome",
+        image: "./placeholder.png",
+        keyIngredients: ["Smooth Pearl Polymers."],
+        shades: ["Nude Light", "Nude Medium"]
+      }   
+    ];
+
+    const uploadBtn = document.getElementById("uploadBtn");
+    const statusText = document.getElementById("status");
+
+    uploadBtn.addEventListener("click", async () => {
+      statusText.innerText = "Uploading products... Please wait...";
+      try {
+        const productsRef = collection(db, "products");
+        let count = 0;
+        for (const product of sampleProducts) {
+          await addDoc(productsRef, product);
+          count++;
+          statusText.innerText = `Uploaded ${count} of ${sampleProducts.length} products...`;
+        }
+        statusText.innerText = `✅ SUCCESS! All ${sampleProducts.length} products uploaded successfully!`;
+      } catch (error) {
+        console.error("Upload failed:", error);
+        statusText.innerText = "❌ Failed: " + error.message;
+      }
+    });
+  </script>
+</body>
+</html>

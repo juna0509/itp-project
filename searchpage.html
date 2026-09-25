@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfect Match - Search</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Header Tajuk Elegan -->
+    <div class="profile-header">
+      <h2>PERFECT MATCH</h2>
+      <p>FIND YOUR BEAUTY ESSENTIALS</p>
+    </div>
+
+    <!-- Banner Penunjuk Slot Perbandingan (Hanya keluar jika datang dari comparisonpage) -->
+    <div id="slotBanner" class="slot-banner" style="display: none;">
+      Choosing product for <span id="slotNumberText">Slot 1</span>
+    </div>
+
+    <!-- 1. Search Bar dengan SVG Vector Lutsinar -->
+    <div class="search-box">
+      <svg class="search-svg-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search products or brands...">
+    </div>
+
+    <!-- 2. Category Filter -->
+    <div class="section-title">Category</div>
+    <div class="chip-group" id="categoryGroup">
+      <div class="chip">Foundation</div>
+      <div class="chip">Concealer</div>
+      <div class="chip">Eyeshadow</div>
+      <div class="chip">Lipstick</div>
+      <div class="chip">Blush</div>
+      <div class="chip">Primer</div>
+      <div class="chip">Loose Powder</div>
+      <div class="chip">Compact Powder</div>
+      <div class="chip">Cushion Foundation</div>
+      <div class="chip">Bronzer</div>
+      <div class="chip">Contour</div>
+      <div class="chip">Highlighter</div>
+      <div class="chip">Setting Spray</div>
+    </div>
+
+    <!-- 3. Level Filter -->
+    <div class="section-title">Level</div>
+    <div class="chip-group" id="levelGroup">
+      <div class="chip">Local</div>
+      <div class="chip">Drugstore</div>
+      <div class="chip">High End</div>
+    </div>
+
+    <!-- 4. Results Grid -->
+    <div class="section-title">Results</div>
+    <div class="results-grid" id="resultsGrid">
+      <!-- Kad produk Firestore akan dijana di sini -->
+    </div>
+  </div>
+
+  <!-- 5. Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <a href="searchpage.html" class="nav-item active">
+      <span class="nav-icon transparent-emoji">🔍</span>
+      <span>Search</span>
+    </a>
+    <a href="comparisonpage.html" class="nav-item">
+      <span class="nav-icon transparent-emoji">⚖️</span>
+      <span>Compare</span>
+    </a>
+    <a href="profilepage.html" class="nav-item">
+      <span class="nav-icon transparent-emoji">👤</span>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <!-- Modal Pop-up Detail Produk -->
+  <div id="productModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:1000; justify-content:center; align-items:center;">
+    <div class="modal-content" style="background:#26201b; border:1px solid #e2be6e; border-radius:16px; padding:20px; width:90%; max-width:380px; color:#fff; position:relative; max-height:85vh; overflow-y:auto; box-sizing:border-box;">
+      <span id="closeModal" style="position:absolute; top:12px; right:16px; font-size:1.5rem; cursor:pointer; color:#c4b5a5;">&times;</span>
+      
+      <img id="modalImg" src="" style="width:100%; height:160px; object-fit:cover; border-radius:10px; margin-bottom:12px;">
+      <h3 id="modalName" style="color:#e2be6e; margin-bottom:4px; font-size:1.1rem; font-family:'Cormorant Garamond', serif;"></h3>
+      <p id="modalBrand" style="color:#c4b5a5; font-size:0.85rem; margin-bottom:12px;"></p>
+      
+      <div style="font-size:0.8rem; line-height:1.6; border-top:1px solid rgba(255,235,200,0.18); padding-top:10px;">
+        <p><strong>Price:</strong> <span id="modalPrice" style="color:#e2be6e;"></span></p>
+        <p><strong>Level:</strong> <span id="modalLevel"></span></p>
+        <p><strong>Category:</strong> <span id="modalCategory"></span></p>
+        <p><strong>Coverage:</strong> <span id="modalCoverage"></span></p>
+        <p><strong>Finish / Type:</strong> <span id="modalFinish"></span></p>
+        <p><strong>Skin Type:</strong> <span id="modalSkinType"></span></p>
+        <p><strong>Key Ingredients:</strong> <span id="modalIngredients"></span></p>
+        <p><strong>Shades:</strong> <span id="modalShades"></span></p>
+      </div>
+
+      <button id="modalCompareBtn" style="width:100%; margin-top:15px; padding:10px; background:linear-gradient(135deg, #e2be6e 0%, #a88138 100%); border:none; border-radius:8px; font-weight:bold; cursor:pointer; color:#000;">
+        ⚖️ Select for Compare
+      </button>
+    </div>
+  </div>
+  <!-- Custom Laptop-Style Alert Modal -->
+<div id="customAlert" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+  <div style="background: #1e1e1e; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; width: 85%; max-width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); overflow: hidden; font-family: sans-serif; text-align: center;">
+    
+    <!-- Header Popup (Bar Atas Ala Laptop) -->
+    <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-size: 0.75rem; color: #888; font-weight: 600; letter-spacing: 0.5px;">SYSTEM ALERT</span>
+      <span id="closeAlertCross" style="color: #888; cursor: pointer; font-size: 1.1rem; line-height: 1;">&times;</span>
+    </div>
+
+    <!-- Kandungan Mesej -->
+    <div style="padding: 20px 15px;">
+      <div style="font-size: 2rem; margin-bottom: 8px;">⚠️</div>
+      <p id="customAlertText" style="color: #ffffff; font-size: 0.85rem; margin: 0; line-height: 1.4; opacity: 0.9;"></p>
+    </div>
+
+    <!-- Butang OK -->
+    <div style="padding: 0 15px 15px 15px;">
+      <button id="closeAlertBtn" style="width: 100%; padding: 10px; background: #d4af37; color: #000; border: none; border-radius: 6px; font-weight: bold; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s;">
+        OK
+      </button>
+    </div>
+
+  </div>
+</div>
+
+  <!-- Script Integrasi Firestore & Perbandingan -->
+  <script type="module">
+  import { auth, db } from "./firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const searchInput = document.getElementById('searchInput');
+  const resultsGrid = document.getElementById('resultsGrid');
+  const chips = document.querySelectorAll('.chip');
+
+  // Element Modal Detail Produk
+  const productModal = document.getElementById('productModal');
+  const closeModal = document.getElementById('closeModal');
+  let activeModalProduct = null;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetSlot = urlParams.get('slot') || '1';
+
+  const slotBanner = document.getElementById('slotBanner');
+  const slotNumberText = document.getElementById('slotNumberText');
+  
+  if (urlParams.has('slot') && slotBanner) {
+    slotBanner.style.display = 'block';
+    slotNumberText.innerText = `Slot ${targetSlot}`;
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "loginpage.html";
+    } else {
+      loadRandomProducts();
+    }
+  });
+
+  // Helper untuk bersihkan text (abaikan sempang & huruf besar/kecil)
+  function normalizeText(text) {
+    return (text || '').toLowerCase().replace(/-/g, ' ').trim();
+  }
+
+  // Helper untuk menampilkan Custom Alert ala Laptop
+  function showCustomAlert(message) {
+    const alertBox = document.getElementById('customAlert');
+    const alertText = document.getElementById('customAlertText');
+    const closeBtn = document.getElementById('closeAlertBtn');
+    const closeCross = document.getElementById('closeAlertCross');
+
+    alertText.innerText = message;
+    alertBox.style.display = 'flex';
+
+    const closeHandler = () => { alertBox.style.display = 'none'; };
+    closeBtn.onclick = closeHandler;
+    closeCross.onclick = closeHandler;
+  }
+
+  // 1. Muatkan Produk Rawak (Default)
+  async function loadRandomProducts() {
+    try {
+      const productsRef = collection(db, "products");
+      const querySnapshot = await getDocs(productsRef);
+      
+      if (!querySnapshot.empty) {
+        let allProducts = [];
+        querySnapshot.forEach(doc => allProducts.push(doc.data()));
+        const randomProducts = allProducts.sort(() => 0.5 - Math.random()).slice(0, 6);
+        renderProducts(randomProducts);
+      } else {
+        showEmptyMessage();
+      }
+    } catch (error) {
+      console.error("Error loading random products: ", error);
+    }
+  }
+
+  // 2. Tapis Mengikut Kategori & Level Tepat
+  async function filterProducts() {
+    try {
+      const activeCategoryChip = document.querySelector('#categoryGroup .chip.active');
+      const activeLevelChip = document.querySelector('#levelGroup .chip.active');
+
+      const selectedCategory = activeCategoryChip ? normalizeText(activeCategoryChip.innerText) : null;
+      const selectedLevel = activeLevelChip ? normalizeText(activeLevelChip.innerText) : null;
+
+      // Jika tiada mana-mana chip dipilih, paparkan rawak semula
+      if (!selectedCategory && !selectedLevel) {
+        loadRandomProducts();
+        return;
+      }
+
+      const productsRef = collection(db, "products");
+      const querySnapshot = await getDocs(productsRef);
+      
+      if (!querySnapshot.empty) {
+        let filteredProducts = [];
+        
+        querySnapshot.forEach(doc => {
+          const item = doc.data();
+          const itemCategory = normalizeText(item.category);
+          const itemLevel = normalizeText(item.level);
+
+          let matchCategory = true;
+          let matchLevel = true;
+
+          if (selectedCategory) {
+            matchCategory = (itemCategory === selectedCategory);
+          }
+
+          if (selectedLevel) {
+            matchLevel = (itemLevel === selectedLevel);
+          }
+
+          if (matchCategory && matchLevel) {
+            filteredProducts.push(item);
+          }
+        });
+
+        if (filteredProducts.length > 0) {
+          renderProducts(filteredProducts);
+        } else {
+          showEmptyMessage();
+        }
+      } else {
+        showEmptyMessage();
+      }
+    } catch (error) {
+      console.error("Error filtering products: ", error);
+    }
+  }
+
+  // 3. Paparkan Kad Produk Dengan Penanda Jenis (Type Tag)
+  function renderProducts(productList) {
+    resultsGrid.innerHTML = "";
+    productList.forEach((item) => {
+      const productImage = item.image || item.imageUrl || '';
+
+      const productString = JSON.stringify({
+        name: item.name || 'Product Name',
+        brand: item.brand || 'Brand',
+        price: item.price ? Number(item.price).toFixed(2) : '00.00',
+        category: item.category || '-',
+        type: item.type || '-',
+        level: item.level || '-',
+        skinType: item.skinType || '-',
+        coverage: item.coverage || '-',
+        finish: item.finish || '-',
+        keyIngredients: item.keyIngredients || [],
+        shades: item.shades || [],
+        image: productImage
+      }).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.setAttribute('data-type', (item.type || '').toLowerCase());
+      card.style.cursor = 'pointer';
+
+      card.innerHTML = `
+        <div class="product-img">
+          ${productImage ? `<img src="${productImage}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">` : '<span class="transparent-emoji">☒</span>'}
+        </div>
+        <div class="product-name">${item.name || 'Product Name'}</div>
+        <div class="product-brand">${item.brand || 'Brand'}</div>
+        
+        <!-- Paparan Jenis Produk & Finish -->
+        <div class="product-type-badge" style="font-size:0.65rem; color:#c4b5a5;">Type: ${item.type || 'Standard'} | ${item.finish || 'Normal'}</div>
+
+        <!-- Paparan Pilihan Shades -->
+        <div class="product-shades" style="font-size: 0.65rem; color: #888; margin: 4px 0;">
+          <strong>Shades:</strong> ${item.shades && item.shades.length > 0 ? (Array.isArray(item.shades) ? item.shades.join(', ') : item.shades) : 'Standard'}
+        </div>
+
+        <div class="product-price">RM ${item.price ? Number(item.price).toFixed(2) : '00.00'}</div>
+        <button class="search-product-btn" style="margin-top: 8px; padding: 6px; font-size: 0.75rem; width:100%;" onclick='event.stopPropagation(); selectForCompare(${productString})'>
+          ⚖️ Compare
+        </button>
+      `;
+
+      // Tekan kad produk untuk buka pop-up maklumat terperinci
+      card.addEventListener('click', () => openProductModal(item));
+
+      resultsGrid.appendChild(card);
+    });
+  }
+
+  // Fungsi Buka Modal Detail Produk
+  function openProductModal(item) {
+    activeModalProduct = item;
+    const imgSrc = item.image || item.imageUrl || '';
+
+    document.getElementById('modalImg').src = imgSrc;
+    document.getElementById('modalName').innerText = item.name || '-';
+    document.getElementById('modalBrand').innerText = item.brand || '-';
+    document.getElementById('modalPrice').innerText = `RM ${item.price ? Number(item.price).toFixed(2) : '00.00'}`;
+    document.getElementById('modalLevel').innerText = item.level || '-';
+    document.getElementById('modalCategory').innerText = item.category || '-';
+    document.getElementById('modalCoverage').innerText = item.coverage || '-';
+    document.getElementById('modalFinish').innerText = `${item.type || 'Standard'} | ${item.finish || 'Normal'}`;
+
+    const skinTypes = Array.isArray(item.skinType) ? item.skinType.join(', ') : (item.skinType || '-');
+    document.getElementById('modalSkinType').innerText = skinTypes;
+
+    const ingredients = Array.isArray(item.keyIngredients) ? item.keyIngredients.join(', ') : (item.keyIngredients || '-');
+    document.getElementById('modalIngredients').innerText = ingredients;
+
+    const shades = Array.isArray(item.shades) ? item.shades.join(', ') : (item.shades || '-');
+    document.getElementById('modalShades').innerText = shades;
+
+    productModal.style.display = 'flex';
+  }
+
+  closeModal.onclick = () => productModal.style.display = 'none';
+  window.onclick = (e) => { if (e.target === productModal) productModal.style.display = 'none'; };
+
+  document.getElementById('modalCompareBtn').onclick = () => {
+    if (activeModalProduct) {
+      const imgSrc = activeModalProduct.image || activeModalProduct.imageUrl || '';
+      selectForCompare({ ...activeModalProduct, image: imgSrc });
+    }
+  };
+
+  function showEmptyMessage() {
+    resultsGrid.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 20px; opacity: 0.6; font-size: 0.85rem;">
+        Tiada produk dijumpai.
+      </div>
+    `;
+  }
+
+  // Simpan ke localStorage & Kembali ke comparisonpage (Dengan Semakan Kategori & Custom Alert)
+  window.selectForCompare = function(productData) {
+    let compareList = JSON.parse(localStorage.getItem('compareProducts')) || [null, null];
+    const slotIndex = parseInt(targetSlot) - 1;
+    
+    // Tentukan slot lagi satu
+    const otherSlotIndex = slotIndex === 0 ? 1 : 0;
+    const existingProduct = compareList[otherSlotIndex];
+
+    // Semakan Kategori
+    if (existingProduct && existingProduct.category && productData.category) {
+      const existingCat = normalizeText(existingProduct.category);
+      const newCat = normalizeText(productData.category);
+
+      if (existingCat !== newCat) {
+        showCustomAlert(`You can only compare products from the same category (${existingProduct.category}).`);
+        return; // Hentikan proses simpan
+      }
+    }
+
+    // Simpan jika melepasi semakan
+    compareList[slotIndex] = productData;
+    localStorage.setItem('compareProducts', JSON.stringify(compareList));
+    window.location.href = "comparisonpage.html";
+  };
+
+  // Penapis Chip Kategori & Level
+  chips.forEach(chip => {
+    chip.addEventListener('click', function() {
+      const parentGroup = this.parentElement;
+      const isAlreadyActive = this.classList.contains('active');
+
+      parentGroup.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      
+      if (!isAlreadyActive) {
+        this.classList.add('active');
+      }
+      
+      filterProducts();
+    });
+  });
+
+  // Carian Live Search mengikut Nama, Brand, atau Type
+  searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase().trim();
+    const cards = document.querySelectorAll('.product-card');
+
+    cards.forEach(card => {
+      const name = card.querySelector('.product-name')?.innerText.toLowerCase() || '';
+      const brand = card.querySelector('.product-brand')?.innerText.toLowerCase() || '';
+      const type = card.getAttribute('data-type') || '';
+
+      if (name.includes(searchTerm) || brand.includes(searchTerm) || type.includes(searchTerm)) {
+        card.style.display = "block";
+      } else {
+        card.style.display = "none";
+      }
+    });
+  });
+</script>
+</body>
+</html>
