@@ -1065,14 +1065,13 @@ body {
   margin-top: 6px;
   padding-bottom: 0;
 }
-
 .search-product-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 8px;
+  padding: 10px;
   background: #e0e0e0;
   color: #000000;
   border-radius: 8px;
@@ -1082,10 +1081,7 @@ body {
   letter-spacing: 0.5px;
   border: none;
   transition: background 0.2s;
-}
-
-.search-product-btn:hover {
-  background: #ffffff;
+  margin-bottom: 15px; /* Tambah jarak sikit supaya tak rapat sangat dengan menu bawah */
 }
 
 .search-product-btn:hover {
