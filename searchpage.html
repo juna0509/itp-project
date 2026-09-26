@@ -33,24 +33,25 @@
       <input type="text" id="searchInput" placeholder="Search products or brands...">
     </div>
 
-    <!-- 2. Category Filter -->
+   <!-- 2. Category Filter -->
     <div class="section-title">Category</div>
-    <div class="chip-group" id="categoryGroup">
-      <div class="chip">Foundation</div>
-      <div class="chip">Concealer</div>
-      <div class="chip">Eyeshadow</div>
-      <div class="chip">Lipstick</div>
-      <div class="chip">Blush</div>
-      <div class="chip">Primer</div>
-      <div class="chip">Loose Powder</div>
-      <div class="chip">Compact Powder</div>
-      <div class="chip">Cushion Foundation</div>
-      <div class="chip">Bronzer</div>
-      <div class="chip">Contour</div>
-      <div class="chip">Highlighter</div>
-      <div class="chip">Setting Spray</div>
+    <div class="category-wrapper">
+      <div class="chip-group" id="categoryGroup">
+        <div class="chip">Foundation</div>
+        <div class="chip">Concealer</div>
+        <div class="chip">Eyeshadow</div>
+        <div class="chip">Lipstick</div>
+        <div class="chip">Blush</div>
+        <div class="chip">Primer</div>
+        <div class="chip">Loose Powder</div>
+        <div class="chip">Compact Powder</div>
+        <div class="chip">Cushion Foundation</div>
+        <div class="chip">Bronzer</div>
+        <div class="chip">Contour</div>
+        <div class="chip">Highlighter</div>
+        <div class="chip">Setting Spray</div>
+      </div>
     </div>
-
     <!-- 3. Level Filter -->
     <div class="section-title">Level</div>
     <div class="chip-group" id="levelGroup">
@@ -132,7 +133,6 @@
 
   </div>
 </div>
-
  <!-- Script Integrasi Firestore & Perbandingan -->
 <script type="module">
   import { auth, db } from "./firebase.js";

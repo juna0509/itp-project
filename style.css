@@ -281,7 +281,54 @@ body {
 /* ==========================================
    4. HALAMAN SKIN PROFILE & CARIAN (SEARCH)
    ========================================== */
-.profile-main {
+/* 1. Tetapkan bekas kategori supaya jadi skrol melintang */
+#categoryGroup {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  gap: 8px;
+  padding-bottom: 8px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* Sembunyikan scrollbar asal tapi masih boleh skrol */
+  scrollbar-width: none; 
+}
+
+#categoryGroup::-webkit-scrollbar {
+  display: none;
+}
+
+/* 2. Pastikan rupa setiap butang chip kekal kemas dan tidak mengecut */
+#categoryGroup .chip {
+  flex: 0 0 auto;
+}
+
+/* 3. Bungkuskan bahagian kategori dengan petunjuk visual anak panah di hujung */
+.category-wrapper {
+  position: relative;
+}
+
+/* Kesan bayangan lembut dan anak panah penunjuk di sebelah kanan */
+.category-wrapper::after {
+  content: "›";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-65%);
+  width: 35px;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(20, 18, 16, 0.9) 70%);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 4px;
+  color: #e2be6e;
+  font-size: 1.5rem;
+  font-weight: bold;
+  pointer-events: none; /* Supaya pengguna masih boleh klik butang di bawahnya */
+}
+
+   .profile-main {
   padding-top: 80px;
 }
 
@@ -960,7 +1007,7 @@ body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-//* Kotak Glass Khas (Hanya Membalut Table) */
+/* Kotak Glass Khas (Hanya Membalut Table) */
 .glass-card {
   width: 100%;
   box-sizing: border-box;
