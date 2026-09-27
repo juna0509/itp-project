@@ -73,12 +73,12 @@
 
       <!-- 5. Preferred Finish -->
       <div class="input-group">
-        <label>5. Preferred Makeup Finish</label>
+        <label>5. Coverage</label>
         <select id="preferredFinish" required>
-          <option value="" disabled selected>Select preferred finish</option>
-          <option value="matte">Matte</option>
-          <option value="dewy">Dewy / Glowy</option>
-          <option value="satin">Satin / Natural</option>
+          <option value="" disabled selected>Select preferred coverage</option>
+          <option value="light">Light</option>
+          <option value="medium">Medium</option>
+          <option value="full">Full</option>
         </select>
       </div>
 
@@ -125,7 +125,7 @@
             if (data.skinTone) document.getElementById('skinTone').value = data.skinTone;
             if (data.undertone) document.getElementById('undertone').value = data.undertone;
             if (data.skinConcern) document.getElementById('skinConcern').value = data.skinConcern;
-            if (data.preferredFinish) document.getElementById('preferredFinish').value = data.preferredFinish;
+            if (data.coverage) document.getElementById('preferredCoverage').value = data.coverage;
             if (data.budgetRange) document.getElementById('budgetRange').value = data.budgetRange;
           }
         } catch (error) {
@@ -145,7 +145,7 @@
               skinTone: document.getElementById('skinTone').value,
               undertone: document.getElementById('undertone').value,
               skinConcern: document.getElementById('skinConcern').value,
-              preferredFinish: document.getElementById('preferredFinish').value,
+              coverage: document.getElementById('preferredCoverage').value,
               budgetRange: document.getElementById('budgetRange').value,
               profileCompleted: true,
               updatedAt: new Date()
