@@ -12,21 +12,22 @@
 <!-- Hanya letak di bahagian <head> dalam comparisonpage.html -->
 <style>
   /* 1. Kunci Viewport untuk Comparison Page sahaja */
-/* 1. Reset Viewport Khas untuk Comparison Page */
 html, body {
-  height: 100dvh !important;
+  height: 100% !important;
+  min-height: 100vh;
   margin: 0;
   padding: 0;
-  overflow: hidden !important;
-  box-sizing: border-box;
+  overflow-x: hidden !important;
+  background-color: #120e0a;
 }
 
 .app-container {
-  height: 100dvh !important;
+  min-height: 100vh !important;
+  height: auto !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
-  padding: 4px 10px 65px 10px !important; /* Ruang bawah elak bertindih nav bar */
+  padding: 4px 10px 75px 10px !important; /* Tambah ruang bawah sikit supaya nav bar & butang tak bertindih */
   box-sizing: border-box;
 }
 
@@ -36,24 +37,24 @@ header, .header-title {
   padding: 0 !important;
 }
 
-/* 3. Kad Gambar Produk (Dikecilkan untuk jimat ruang) */
+/* 3. Kad Gambar Produk (Dikecilkan sikit untuk jimat ruang menegak) */
 .product-card {
   padding: 2px 4px !important;
 }
 
 .product-card img {
-  max-height: 48px !important; /* Kecilkan saiz gambar */
+  max-height: 44px !important;
   object-fit: contain;
 }
 
 .product-card h3, .product-title {
-  font-size: 0.62rem !important;
+  font-size: 0.6rem !important;
   margin: 1px 0 !important;
-  line-height: 1.1 !important;
+  line-height: 1.05 !important;
 }
 
 .product-card p, .product-price {
-  font-size: 0.58rem !important;
+  font-size: 0.55rem !important;
   margin: 1px 0 !important;
 }
 
@@ -63,11 +64,11 @@ header, .header-title {
   box-sizing: border-box;
   margin: 2px 0 !important;
   padding: 2px 4px !important;
-  font-size: 0.68rem !important;
+  font-size: 0.65rem !important;
   letter-spacing: 0.3px;
 }
 
-/* 5. Glass Card (Diberi ruang lebih besar untuk table) */
+/* 5. Glass Card */
 .glass-card {
   width: 100% !important;
   box-sizing: border-box;
@@ -76,29 +77,31 @@ header, .header-title {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 10px;
-  padding: 6px 8px !important;
+  padding: 4px 8px !important;
   margin: 2px 0 !important;
-  flex: 1; /* Mengisi baki ruang tengah */
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  overflow-x: hidden;
 }
 
-/* 6. Comparison Table (Teks & Baris Lebih Selesa Dibaca) */
+/* 6. Comparison Table */
 .comparison-table {
   width: 100% !important;
   margin-top: 0 !important;
   border-top: none !important;
+  box-sizing: border-box;
 }
 
 .table-row {
   display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr;
-  padding: 8px 4px !important; /* Ruang baris lebih selesa */
+  grid-template-columns: 1fr 1fr 1fr !important;
+  padding: 6px 4px !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 0.88rem !important; /* Font lebih jelas */
+  font-size: 0.82rem !important;
   align-items: center;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .table-row:last-child {
@@ -111,27 +114,26 @@ header, .header-title {
   text-align: left;
 }
 
-/* Kemasan Penambahbaikan #2: Saiz teks & spacing nipis untuk sel perbandingan */
 .val-1, .val-2 {
   text-align: center;
   word-break: break-word;
   padding: 0 2px;
-  font-size: 0.85rem !important;
-  line-height: 1.15 !important;
+  font-size: 0.8rem !important;
+  line-height: 1.1 !important;
 }
 
-/* Kemasan Penambahbaikan #1: Highlight Visual Cue untuk status padan */
 .val-1.match, .val-2.match, .status-good {
-  color: #4CAF50 !important; /* Warna hijau lembut untuk match */
+  color: #4CAF50 !important;
   font-weight: 600;
 }
 
 .empty-text {
   color: rgba(255, 255, 255, 0.3);
   font-style: italic;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
 }
-/* 7. Action Button Container */
+
+/* 7. Action Button Container (Dijamin nampak dan tak hilang) */
 .action-btn-container {
   width: 100% !important;
   margin-top: 2px !important;
@@ -144,25 +146,35 @@ header, .header-title {
   justify-content: center;
   gap: 6px;
   width: 100%;
-  padding: 7px 10px !important;
+  padding: 6px 10px !important;
   background: #e0e0e0;
   color: #000000;
   border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.72rem !important;
+  font-size: 0.7rem !important;
   border: none;
   transition: background 0.2s, transform 0.1s;
 }
 
-/* Kemasan Penambahbaikan #3: Micro-interaction semasa butang ditekan */
 .search-product-btn:active {
   transform: scale(0.97);
   background: #ffffff;
   opacity: 0.9;
 }
+
+/* KHAS UNTUK SKRIN TELEFON SAHAJA */
+@media screen and (max-width: 768px) {
+  .table-row {
+    grid-template-columns: 32% 34% 34% !important;
+    padding: 4px 2px !important;
+  }
+  
+  .val-1, .val-2 {
+    font-size: 0.72rem !important;
+  }
+}
 </style>
-<body>
 
   <div class="app-container compare-main">
     
