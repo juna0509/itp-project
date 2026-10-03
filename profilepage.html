@@ -9,66 +9,143 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* Stail tambahan untuk bahagian tukar katalaluan & ikon mata */
-    .password-section {
-      margin-top: 15px;
-      border-top: 1px solid rgba(0, 0, 0, 0.06);
-      padding-top: 15px;
+    /* Kad Profil Utama: Susunan Menegak */
+    .profile-card-main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 20px;
+      gap: 20px;
     }
-    .password-section h4 {
+
+    .profile-identity {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .avatar-container-center {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 1px solid rgba(215, 175, 55, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      margin-bottom: 12px;
+    }
+
+    .profile-avatar-icon {
+      color: #d4af37;
+    }
+
+    .profile-identity .detail-item {
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    .profile-identity label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.5);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .profile-identity span {
       font-size: 14px;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    /* Bahagian Tukar Kata Laluan */
+    .password-section {
+      width: 100%;
+      text-align: left;
+    }
+
+    .password-section h4 {
+      font-size: 15px;
       font-weight: 600;
       margin-bottom: 12px;
-      color: #333;
+      color: #fff;
+      letter-spacing: 0.5px;
+      text-align: center;
     }
+
     .password-wrapper {
       position: relative;
       width: 100%;
       display: flex;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
+
     .password-wrapper input {
       width: 100%;
-      padding: 8px 40px 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 14px;
+      padding: 12px 40px 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 13px;
       font-family: inherit;
+      box-sizing: border-box;
     }
+
+    .password-wrapper input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .password-wrapper input:focus {
+      outline: none;
+      border-color: #d4af37;
+    }
+
     .toggle-password {
       position: absolute;
-      right: 12px;
+      right: 14px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 15px;
       user-select: none;
       z-index: 10;
       background: none;
       border: none;
-    }
-    .update-pass-btn {
-      background-color: #222;
-      color: #fff;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .update-pass-btn:hover {
-      background-color: #444;
+      color: #aaa;
     }
 
-    /* Stail untuk Pop-up Notification / Modal */
+    .update-pass-btn {
+      background-color: #d4af37;
+      color: #1a1a1a;
+      border: none;
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 5px;
+    }
+
+    .update-pass-btn:hover {
+      background-color: #e6c55c;
+    }
+
+    /* --- STAIR POP-UP MODAL (GAYA SYSTEM ALERT) --- */
     .popup-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.75);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -82,50 +159,76 @@
       visibility: visible;
     }
     .popup-box {
-      background: #fff;
-      padding: 24px;
-      border-radius: 12px;
+      background: #1e1b18; /* Warna latar gelap tema aplikasi */
+      border: 1px solid rgba(215, 175, 55, 0.3);
+      border-radius: 10px;
       width: 85%;
-      max-width: 320px;
-      text-align: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      max-width: 330px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.5);
       transform: translateY(20px);
       transition: transform 0.3s ease;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
     }
     .popup-overlay.show .popup-box {
       transform: translateY(0);
     }
-    .popup-icon {
-      font-size: 36px;
-      margin-bottom: 12px;
+    /* Bahagian Atas (Header) Alert */
+    .popup-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.2);
     }
-    .popup-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px;
+    .popup-system-title {
+      font-size: 11px;
       font-weight: 600;
-      margin-bottom: 8px;
-      color: #111;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .popup-close-x {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .popup-close-x:hover {
+      color: #fff;
+    }
+    /* Kandungan Badan Alert */
+    .popup-body-content {
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .popup-icon-container {
+      margin-bottom: 15px;
+      color: #e6c55c; /* Warna kuning amaran */
+      display: flex;
+      justify-content: center;
     }
     .popup-message {
       font-size: 13px;
-      color: #666;
-      margin-bottom: 20px;
-      line-height: 1.4;
+      color: #e0e0e0;
+      margin-bottom: 22px;
+      line-height: 1.5;
     }
     .popup-btn {
-      background-color: #222;
-      color: #fff;
+      background-color: #d4af37;
+      color: #1a1a1a;
       border: none;
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       border-radius: 6px;
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       transition: background 0.2s;
     }
     .popup-btn:hover {
-      background-color: #444;
+      background-color: #e6c55c;
     }
   </style>
 </head>
@@ -138,40 +241,48 @@
       <p>YOUR PERSONAL SANCTUARY</p>
     </div>
 
-    <div class="auth-form account-card">
-      <div class="avatar-container">
-        <svg class="profile-avatar-icon" viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-      </div>
-      <div class="account-details">
+    <!-- Kad Profil Utama -->
+    <div class="auth-form profile-card-main">
+      
+      <div class="profile-identity">
+        <div class="avatar-container-center">
+          <svg class="profile-avatar-icon" viewBox="0 0 24 24" width="34" height="34" stroke="currentColor" stroke-width="1.5" fill="none">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
         <div class="detail-item">
           <label>Full Name</label>
           <span id="userFullName">User</span>
         </div>
-        <div class="detail-item">
+        <div class="detail-item" style="margin-bottom: 0;">
           <label>Email</label>
           <span id="userEmail">loading...</span>
         </div>
-
-        <!-- Bahagian Tukar / Reset Kata Laluan -->
-        <div class="password-section">
-          <h4>Change Password</h4>
-          
-          <div class="password-wrapper">
-            <input type="password" id="newPassword" placeholder="Enter new password">
-            <button type="button" class="toggle-password" id="toggleNewPassBtn" title="Show/Hide Password">👁</button>
-          </div>
-
-          <div class="password-wrapper">
-            <input type="password" id="confirmPassword" placeholder="Confirm new password">
-            <button type="button" class="toggle-password" id="toggleConfirmPassBtn" title="Show/Hide Password">👁</button>
-          </div>
-
-          <button type="button" class="update-pass-btn" id="updatePasswordBtn">Update Password</button>
-        </div>
       </div>
+
+      <!-- Bahagian Tukar Kata Laluan -->
+      <div class="password-section">
+        <h4>Change Password</h4>
+        
+        <div class="password-wrapper">
+          <input type="password" id="currentPassword" placeholder="Current password">
+          <button type="button" class="toggle-password" id="toggleCurrentPassBtn" title="Show/Hide Password">👁</button>
+        </div>
+
+        <div class="password-wrapper">
+          <input type="password" id="newPassword" placeholder="New password">
+          <button type="button" class="toggle-password" id="toggleNewPassBtn" title="Show/Hide Password">👁</button>
+        </div>
+
+        <div class="password-wrapper">
+          <input type="password" id="confirmPassword" placeholder="Confirm new password">
+          <button type="button" class="toggle-password" id="toggleConfirmPassBtn" title="Show/Hide Password">👁</button>
+        </div>
+
+        <button type="button" class="update-pass-btn" id="updatePasswordBtn">Update Password</button>
+      </div>
+
     </div>
 
     <a href="skinprofile.html" class="action-card-link">
@@ -221,13 +332,25 @@
 
   </div>
 
-  <!-- Custom Pop-up Modal HTML -->
+  <!-- Custom Pop-up Modal HTML (Gaya System Alert) -->
   <div class="popup-overlay" id="popupOverlay">
     <div class="popup-box">
-      <div class="popup-icon" id="popupIcon">✨</div>
-      <h3 class="popup-title" id="popupTitle">Success</h3>
-      <p class="popup-message" id="popupMessage">Your action was completed successfully.</p>
-      <button class="popup-btn" id="popupCloseBtn">OK</button>
+      <div class="popup-header-bar">
+        <span class="popup-system-title" id="popupTitle">SYSTEM ALERT</span>
+        <button class="popup-close-x" id="popupCloseXBtn">&times;</button>
+      </div>
+      <div class="popup-body-content">
+        <div class="popup-icon-container">
+          <!-- Icon Amaran Segitiga -->
+          <svg viewBox="0 0 24 24" width="38" height="38" stroke="currentColor" stroke-width="1.8" fill="none">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <p class="popup-message" id="popupMessage">Mesej amaran akan dipaparkan di sini.</p>
+        <button class="popup-btn" id="popupCloseBtn">OK</button>
+      </div>
     </div>
   </div>
 
@@ -251,31 +374,31 @@
 
   <script type="module">
     import { auth, db } from "./firebase.js";
-    import { onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { onAuthStateChanged, signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const userEmail = document.getElementById("userEmail");
     const userFullName = document.getElementById("userFullName");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    // Elemen Tukar Kata Laluan
+    const currentPasswordInput = document.getElementById("currentPassword");
     const newPasswordInput = document.getElementById("newPassword");
     const confirmPasswordInput = document.getElementById("confirmPassword");
     const updatePasswordBtn = document.getElementById("updatePasswordBtn");
+    
+    const toggleCurrentPassBtn = document.getElementById("toggleCurrentPassBtn");
     const toggleNewPassBtn = document.getElementById("toggleNewPassBtn");
     const toggleConfirmPassBtn = document.getElementById("toggleConfirmPassBtn");
 
-    // Elemen Pop-up
     const popupOverlay = document.getElementById("popupOverlay");
-    const popupIcon = document.getElementById("popupIcon");
     const popupTitle = document.getElementById("popupTitle");
     const popupMessage = document.getElementById("popupMessage");
     const popupCloseBtn = document.getElementById("popupCloseBtn");
+    const popupCloseXBtn = document.getElementById("popupCloseXBtn");
 
-    function showPopup(title, message, icon = "✨") {
+    function showPopup(title, message) {
       popupTitle.textContent = title;
       popupMessage.textContent = message;
-      popupIcon.textContent = icon;
       popupOverlay.classList.add("show");
     }
 
@@ -283,27 +406,24 @@
       popupOverlay.classList.remove("show");
     });
 
-    // Toggle Ikon Mata untuk New Password
-    toggleNewPassBtn.addEventListener("click", () => {
-      if (newPasswordInput.type === "password") {
-        newPasswordInput.type = "text";
-        toggleNewPassBtn.textContent = "🙈";
-      } else {
-        newPasswordInput.type = "password";
-        toggleNewPassBtn.textContent = "👁";
-      }
+    popupCloseXBtn.addEventListener("click", () => {
+      popupOverlay.classList.remove("show");
     });
 
-    // Toggle Ikon Mata untuk Confirm Password
-    toggleConfirmPassBtn.addEventListener("click", () => {
-      if (confirmPasswordInput.type === "password") {
-        confirmPasswordInput.type = "text";
-        toggleConfirmPassBtn.textContent = "🙈";
-      } else {
-        confirmPasswordInput.type = "password";
-        toggleConfirmPassBtn.textContent = "👁";
-      }
-    });
+    function setupToggle(btn, input) {
+      btn.addEventListener("click", () => {
+        if (input.type === "password") {
+          input.type = "text";
+          btn.textContent = "🙈";
+        } else {
+          input.type = "password";
+          btn.textContent = "👁";
+        }
+      });
+    }
+    setupToggle(toggleCurrentPassBtn, currentPasswordInput);
+    setupToggle(toggleNewPassBtn, newPasswordInput);
+    setupToggle(toggleConfirmPassBtn, confirmPasswordInput);
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -327,24 +447,24 @@
       }
     });
 
-    // Fungsi Kemas Kini Kata Laluan
     updatePasswordBtn.addEventListener("click", async () => {
       const user = auth.currentUser;
+      const currentPassword = currentPasswordInput.value;
       const newPassword = newPasswordInput.value;
       const confirmPassword = confirmPasswordInput.value;
 
-      if (!newPassword || !confirmPassword) {
-        showPopup("Missing Fields", "Please fill in both password fields.", "⚠️");
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        showPopup("SYSTEM ALERT", "Please fill in all password fields.");
         return;
       }
 
       if (newPassword !== confirmPassword) {
-        showPopup("Mismatch", "Passwords do not match. Please check again.", "⚠️");
+        showPopup("SYSTEM ALERT", "New passwords do not match. Please check again.");
         return;
       }
 
       if (newPassword.length < 6) {
-        showPopup("Too Short", "Password should be at least 6 characters long.", "⚠️");
+        showPopup("SYSTEM ALERT", "New password should be at least 6 characters long.");
         return;
       }
 
@@ -352,20 +472,23 @@
         updatePasswordBtn.innerText = "UPDATING...";
         updatePasswordBtn.disabled = true;
 
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        await reauthenticateWithCredential(user, credential);
+
         await updatePassword(user, newPassword);
         
-        // Pop-up Berjaya
-        showPopup("Success!", "Your password has been updated successfully.", "🎉");
+        showPopup("SUCCESS", "Your password has been updated successfully.");
         
-        // Kosongkan ruangan input
+        currentPasswordInput.value = "";
         newPasswordInput.value = "";
         confirmPasswordInput.value = "";
+
       } catch (error) {
         console.error("Error updating password:", error);
-        if (error.code === 'auth/requires-recent-login') {
-          showPopup("Security Check", "For security reasons, please log out and log back in before changing your password.", "🔒");
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+          showPopup("SYSTEM ALERT", "The current password you entered is incorrect.");
         } else {
-          showPopup("Error", "Failed to update password: " + error.message, "❌");
+          showPopup("SYSTEM ALERT", "Failed to update password: " + error.message);
         }
       } finally {
         updatePasswordBtn.innerText = "Update Password";
@@ -373,7 +496,6 @@
       }
     });
 
-    // Tetapan butang Log Out
     logoutBtn.addEventListener("click", async () => {
       try {
         await signOut(auth);
