@@ -309,7 +309,7 @@ header, .header-title {
     </a>
   </nav>
 
- <script type="module">
+<script type="module">
     import { auth, db } from "./firebase.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -409,8 +409,10 @@ header, .header-title {
       });
     }
 
-    // Fungsi Padankan Shade Spesifik Mengikut Skin Tone Profile Pengguna
-    function getMatchedShade(productShades, userProfile) {
+    // Fungsi Padankan Shade Spesifik Mengikut Skin Tone Profile Pengguna (Menyokong 'shade' & 'shades')
+    function getMatchedShade(productShadesOrShade, userProfile) {
+      const productShades = productShadesOrShade;
+      
       if (!productShades) return "N/A";
 
       if (Array.isArray(productShades)) {
@@ -509,8 +511,9 @@ header, .header-title {
           updateTableCell(`stype-${slotNum}`, formattedSkinType);
           updateTableCell(`coverage-${slotNum}`, product.coverage);
           
-          // Papar Shade Spesifik Sahaja
-          const matchedShade = getMatchedShade(product.shades, currentUserProfile);
+          // Papar Shade Spesifik Sahaja (menyokong product.shades ATAU product.shade)
+          const rawShadeData = product.shades || product.shade;
+          const matchedShade = getMatchedShade(rawShadeData, currentUserProfile);
           updateTableCell(`shades-${slotNum}`, matchedShade);
           
           updateTableCell(`tprice-${slotNum}`, product.price ? `RM ${productPrice}` : null);

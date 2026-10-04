@@ -350,7 +350,7 @@
     }
   }
 
-  // Fungsi menapis dan memaparkan produk mengikut chip aktif (Dioptimumkan dengan Fallback Data Mismatch)
+  // Fungsi menapis dan memaparkan produk mengikut chip aktif
   function renderFilteredProducts() {
     recommendGrid.innerHTML = "";
     
@@ -368,7 +368,6 @@
       card.className = "product-card";
       card.style.cursor = "pointer";
       
-      // Sokongan bersepadu untuk pelbagai variasi medan (Admin Dashboard vs Rekabentuk asal)
       const productName = product.productName || product.name || 'Product Name';
       const productImage = product.productImage || product.image || product.imageUrl || '';
       const productBrand = product.brand || 'BRAND';
@@ -390,7 +389,7 @@
     });
   }
 
-  // Fungsi Membuka Modal & Memaparkan Details (Key Ingredients) - Dioptimumkan dengan Fallback Data Mismatch
+  // Fungsi Membuka Modal & Memaparkan Details (Key Ingredients & Shade)
   function openProductModal(product, userProfile) {
     const productName = product.productName || product.name || "Product Name";
     const productImage = product.productImage || product.image || product.imageUrl || '';
@@ -414,13 +413,16 @@
       modalImgContainer.innerHTML = `<span class="transparent-emoji" style="font-size: 3rem;">☒</span>`;
     }
 
+    // Sokongan bersepadu untuk mengambil nilai dari product.shade atau product.shades
     let matchedShade = "Standard Match";
-    if (Array.isArray(product.shades) && product.shades.length > 0) {
+    const rawShade = product.shade || product.shades;
+
+    if (Array.isArray(rawShade) && rawShade.length > 0) {
       const tone = (userProfile && userProfile.skinTone) ? userProfile.skinTone.toLowerCase() : "";
-      const found = product.shades.find(s => s.toLowerCase().includes(tone));
-      matchedShade = found ? `✨ ${found}` : `✨ ${product.shades[0]}`;
-    } else if (product.shades) {
-      matchedShade = `✨ ${product.shades}`;
+      const found = rawShade.find(s => s.toLowerCase().includes(tone));
+      matchedShade = found ? `✨ ${found}` : `✨ ${rawShade[0]}`;
+    } else if (rawShade) {
+      matchedShade = `✨ ${rawShade}`;
     }
     
     const modalShadeElem = document.getElementById("modalShade");
@@ -428,7 +430,6 @@
       modalShadeElem.innerText = matchedShade;
     }
 
-    // Sokongan render dinamik jika spec box baru digunakan
     const specContainer = document.getElementById("productSpecBox");
     if (specContainer && specContainer.children.length === 0) {
       specContainer.innerHTML = `

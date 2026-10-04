@@ -262,6 +262,9 @@
       const productName = item.productName || item.name || 'Product Name';
       const productImage = item.productImage || item.image || item.imageUrl || '';
       const productBrand = item.brand || 'Brand';
+      
+      // Ambil nilai shades ATAU shade
+      const rawShades = item.shades || item.shade;
 
       const productString = JSON.stringify({
         name: productName,
@@ -274,7 +277,7 @@
         coverage: item.coverage || '-',
         finish: item.finish || '-',
         keyIngredients: item.keyIngredients || [],
-        shades: item.shades || [],
+        shades: rawShades || [],
         image: productImage
       }).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
 
@@ -293,7 +296,7 @@
         <div class="product-type-badge" style="font-size:0.65rem; color:#c4b5a5;">Type: ${item.type || 'Standard'} | ${item.finish || 'Normal'}</div>
 
         <div class="product-shades" style="font-size: 0.65rem; color: #888; margin: 4px 0;">
-          <strong>Shades:</strong> ${item.shades && item.shades.length > 0 ? (Array.isArray(item.shades) ? item.shades.join(', ') : item.shades) : 'Standard'}
+          <strong>Shades:</strong> ${rawShades && (Array.isArray(rawShades) ? rawShades.length > 0 : true) ? (Array.isArray(rawShades) ? rawShades.join(', ') : rawShades) : 'Standard'}
         </div>
 
         <div class="product-price">RM ${item.price ? Number(item.price).toFixed(2) : '00.00'}</div>
@@ -313,6 +316,7 @@
     const productName = item.productName || item.name || '-';
     const productBrand = item.brand || '-';
     const imgSrc = item.productImage || item.image || item.imageUrl || '';
+    const rawShades = item.shades || item.shade;
 
     document.getElementById('modalImg').src = imgSrc;
     document.getElementById('modalName').innerText = productName;
@@ -329,8 +333,8 @@
     const ingredients = Array.isArray(item.keyIngredients) ? item.keyIngredients.join(', ') : (item.keyIngredients || '-');
     document.getElementById('modalIngredients').innerText = ingredients;
 
-    const shades = Array.isArray(item.shades) ? item.shades.join(', ') : (item.shades || '-');
-    document.getElementById('modalShades').innerText = shades;
+    const shadesText = Array.isArray(rawShades) ? rawShades.join(', ') : (rawShades || '-');
+    document.getElementById('modalShades').innerText = shadesText;
 
     productModal.style.display = 'flex';
   }
