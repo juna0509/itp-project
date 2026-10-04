@@ -450,7 +450,7 @@ header, .header-title {
       return null;
     }
 
-    // Fungsi Papar Data terus dari Firestore
+    // Fungsi Papar Data terus dari Firestore (Dioptimumkan dengan Fallback Data Mismatch)
     function renderComparisonPage(compareList) {
       const mainSearchBtn = document.getElementById('mainSearchBtn');
 
@@ -469,10 +469,16 @@ header, .header-title {
         const slotNum = index + 1;
 
         if (product) {
+          // Sokongan bersepadu untuk variasi medan (productImage vs image vs imageUrl)
+          const productImage = product.productImage || product.image || product.imageUrl || '';
+          const productName = product.productName || product.name || 'Product Name';
+          const productBrand = product.brand || 'Brand';
+          const productPrice = product.price ? Number(product.price).toFixed(2) : '00.00';
+
           // Papar elemen produk & sembunyikan empty state
           const imgElem = document.getElementById(`img-${slotNum}`);
-          if (product.image && product.image.trim() !== '') {
-            imgElem.src = product.image;
+          if (productImage && productImage.trim() !== '') {
+            imgElem.src = productImage;
             imgElem.style.display = 'block';
           } else {
             imgElem.style.display = 'none';
@@ -483,9 +489,9 @@ header, .header-title {
           document.getElementById(`remove-${slotNum}`).style.display = 'block';
 
           // Kemaskini Info Kad
-          document.getElementById(`name-${slotNum}`).innerText = product.name || 'Product Name';
-          document.getElementById(`brand-${slotNum}`).innerText = product.brand || 'Brand';
-          document.getElementById(`price-${slotNum}`).innerText = `RM ${product.price || '00.00'}`;
+          document.getElementById(`name-${slotNum}`).innerText = productName;
+          document.getElementById(`brand-${slotNum}`).innerText = productBrand;
+          document.getElementById(`price-${slotNum}`).innerText = `RM ${productPrice}`;
 
           // Formatkan skinType supaya ada jarak (space) selepas setiap koma
           let formattedSkinType = product.skinType;
@@ -507,7 +513,7 @@ header, .header-title {
           const matchedShade = getMatchedShade(product.shades, currentUserProfile);
           updateTableCell(`shades-${slotNum}`, matchedShade);
           
-          updateTableCell(`tprice-${slotNum}`, product.price ? `RM ${product.price}` : null);
+          updateTableCell(`tprice-${slotNum}`, product.price ? `RM ${productPrice}` : null);
 
           // Semak & Papar Status Bajet
           const userBudget = currentUserProfile ? currentUserProfile.budgetRange : null;

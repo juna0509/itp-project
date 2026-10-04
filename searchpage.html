@@ -254,15 +254,18 @@
     }
   }
 
-  // 3. Paparkan Kad Produk Dengan Penanda Jenis (Type Tag)
+  // 3. Paparkan Kad Produk Dengan Penanda Jenis (Type Tag) - Dioptimumkan dengan Fallback Data Mismatch
   function renderProducts(productList) {
     resultsGrid.innerHTML = "";
     productList.forEach((item) => {
-      const productImage = item.image || item.imageUrl || '';
+      // Sokongan bersepadu untuk pelbagai variasi nama medan (Admin Dashboard vs Rekabentuk asal)
+      const productName = item.productName || item.name || 'Product Name';
+      const productImage = item.productImage || item.image || item.imageUrl || '';
+      const productBrand = item.brand || 'Brand';
 
       const productString = JSON.stringify({
-        name: item.name || 'Product Name',
-        brand: item.brand || 'Brand',
+        name: productName,
+        brand: productBrand,
         price: item.price ? Number(item.price).toFixed(2) : '00.00',
         category: item.category || '-',
         type: item.type || '-',
@@ -282,10 +285,10 @@
 
       card.innerHTML = `
         <div class="product-img">
-          ${productImage ? `<img src="${productImage}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">` : '<span class="transparent-emoji">☒</span>'}
+          ${productImage ? `<img src="${productImage}" alt="${productName}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">` : '<span class="transparent-emoji">☒</span>'}
         </div>
-        <div class="product-name">${item.name || 'Product Name'}</div>
-        <div class="product-brand">${item.brand || 'Brand'}</div>
+        <div class="product-name">${productName}</div>
+        <div class="product-brand">${productBrand}</div>
         
         <div class="product-type-badge" style="font-size:0.65rem; color:#c4b5a5;">Type: ${item.type || 'Standard'} | ${item.finish || 'Normal'}</div>
 
@@ -307,11 +310,13 @@
   // Fungsi Buka Modal Detail Produk
   function openProductModal(item) {
     activeModalProduct = item;
-    const imgSrc = item.image || item.imageUrl || '';
+    const productName = item.productName || item.name || '-';
+    const productBrand = item.brand || '-';
+    const imgSrc = item.productImage || item.image || item.imageUrl || '';
 
     document.getElementById('modalImg').src = imgSrc;
-    document.getElementById('modalName').innerText = item.name || '-';
-    document.getElementById('modalBrand').innerText = item.brand || '-';
+    document.getElementById('modalName').innerText = productName;
+    document.getElementById('modalBrand').innerText = productBrand;
     document.getElementById('modalPrice').innerText = `RM ${item.price ? Number(item.price).toFixed(2) : '00.00'}`;
     document.getElementById('modalLevel').innerText = item.level || '-';
     document.getElementById('modalCategory').innerText = item.category || '-';
@@ -335,8 +340,10 @@
 
   document.getElementById('modalCompareBtn').onclick = () => {
     if (activeModalProduct) {
-      const imgSrc = activeModalProduct.image || activeModalProduct.imageUrl || '';
-      selectForCompare({ ...activeModalProduct, image: imgSrc });
+      const productName = activeModalProduct.productName || activeModalProduct.name || 'Product Name';
+      const productBrand = activeModalProduct.brand || 'Brand';
+      const imgSrc = activeModalProduct.productImage || activeModalProduct.image || activeModalProduct.imageUrl || '';
+      selectForCompare({ ...activeModalProduct, name: productName, brand: productBrand, image: imgSrc });
     }
   };
 
@@ -436,7 +443,7 @@
     chips.forEach(c => c.classList.remove('active'));
 
     const filtered = allFetchedProducts.filter(item => {
-      const name = (item.name || '').toLowerCase();
+      const name = (item.productName || item.name || '').toLowerCase();
       const brand = (item.brand || '').toLowerCase();
       const category = (item.category || '').toLowerCase();
       const type = (item.type || '').toLowerCase();
